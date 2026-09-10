@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-page-node-id="BEro2KehylsT3GnZMA4ivv">
+<head data-page-node-id="fuaAT764f0SpgS0LHmng6z">
+<meta charset="UTF-8" data-page-node-id="6HDkf8ZHKfGfhmiqlZAxkP">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="buMrdN7C0gtzmN7cwXjkRS">
+<title>人生管理系统</title>
+<meta name="theme-color" content="#af52de">
+<!-- PWA / 可安装到手机桌面 -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="人生管理">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  /* 品牌主色 */
+  --c-purple:#af52de;
+  --c-cyan:#5ac8fa;
+  --c-indigo:#5856d6;
+  /* 功能/状态色 */
+  --c-blue:#0071e3;
+  --c-green:#34c759;
+  --c-orange:#ff9500;
+  --c-pink:#ff375f;
+  /* 主题（浅色） */
+  --bg:#f5f5f7;
+  --surface:#ffffff;
+  --surface-2:#fbfbfd;
+  --text:#1d1d1f;
+  --text-2:#6e6e73;
+  --border:#e8e8ed;
+  --shadow:0 2px 14px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 30px rgba(0,0,0,.10);
+  --radius:16px;
+}
+html[data-theme="dark"]{
+  --bg:#000000;
+  --surface:#1c1c1e;
+  --surface-2:#2c2c2e;
+  --text:#f5f5f7;
+  --text-2:#98989d;
+  --border:#38383a;
+  --shadow:0 2px 14px rgba(0,0,0,.45);
+  --shadow-lg:0 8px 30px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);
+  display:flex;min-height:100vh;overflow-x:hidden;
+  transition:background .3s,color .3s;
+}
+/* 侧边栏 */
+.sidebar{
+  width:220px;flex:0 0 220px;background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:40;
+  padding:18px 12px;gap:4px;overflow-y:auto;
+  transition:transform .3s ease;
+}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 10px 14px;}
+.brand .logo{
+  width:38px;height:38px;border-radius:11px;
+  background:linear-gradient(135deg,var(--c-purple),var(--c-cyan));
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;box-shadow:var(--shadow);
+}
+.brand h1{font-size:16px;font-weight:700;line-height:1.1;}
+.brand h1 span{display:block;font-size:11px;font-weight:500;color:var(--text-2);}
+.nav-item{
+  display:flex;align-items:center;gap:11px;
+  padding:11px 12px;border-radius:12px;cursor:pointer;
+  color:var(--text-2);font-size:14px;font-weight:600;
+  transition:background .18s,color .18s;user-select:none;
+}
+.nav-item .ico{font-size:18px;width:22px;text-align:center;}
+.nav-item:hover{background:var(--surface-2);color:var(--text);}
+.nav-item.active{background:linear-gradient(135deg,color-mix(in srgb,var(--c-purple) 16%,transparent),color-mix(in srgb,var(--c-cyan) 16%,transparent));color:var(--c-indigo);}
+.nav-item.active .ico{filter:none;}
+.nav-sep{height:1px;background:var(--border);margin:10px 8px;}
+.nav-spacer{flex:1;}
+.analysis-btn{
+  margin:6px 4px 4px;padding:12px;border-radius:12px;cursor:pointer;
+  background:linear-gradient(135deg,var(--c-indigo),var(--c-purple));
+  color:#fff;font-weight:700;font-size:14px;text-align:center;
+  box-shadow:var(--shadow);border:none;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.analysis-btn:active{transform:scale(.97);}
+.install-btn{
+  margin:2px 4px 6px;padding:10px 12px;border-radius:12px;cursor:pointer;
+  background:var(--surface-2);border:1px solid var(--border);
+  color:var(--text);font-weight:600;font-size:13px;text-align:center;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:.18s;
+}
+.install-btn:hover{background:var(--border);}
+.install-btn:active{transform:scale(.97);}
+.install-btn.hidden{display:none;}
+/* 性别主题增强 */
+html[data-gender="female"]{ --radius:22px; }
+html[data-gender="male"]{ --radius:14px; }
+html[data-gender="male"] .brand .logo{ background:linear-gradient(135deg,#1c1c1e,#636366); }
+html[data-gender="female"] .brand .logo{ background:linear-gradient(135deg,#ff69b4,#ffc2d1); }
+html[data-gender="female"] .module-head h2::after{ content:' 🌸'; font-size:18px; }
+html[data-gender="male"] .module-head h2::after{ content:''; }
+/* 按钮交互动画 */
+.btn{position:relative;overflow:hidden;}
+.btn::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.25),transparent);opacity:0;transition:opacity .2s;}
+.btn:hover::after{opacity:1;}
+.btn{transition:transform .12s,box-shadow .2s,filter .2s;}
+.btn.click-anim{animation:btnPulse .35s ease;}
+@keyframes btnPulse{0%{transform:scale(1);}40%{transform:scale(.94);}100%{transform:scale(1);}}
+/* 打卡成功上浮 */
+.float-up{animation:floatUp .5s ease;}
+@keyframes floatUp{0%{transform:translateY(0);}50%{transform:translateY(-5px);}100%{transform:translateY(0);}}
+/* 热力图颜色随主题 */
+.heat-cell.on{transition:transform .2s,background .3s;}
+.heat-cell.on:hover{transform:scale(1.08);}
+/* 内容区 */
+.main{flex:1;margin-left:220px;padding:26px 30px 120px;max-width:1100px;}
+.topbar{display:none;}
+@media(max-width:860px){
+  .sidebar{transform:translateX(-100%);box-shadow:var(--shadow-lg);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;padding:70px 16px 120px;}
+  .topbar{display:flex;align-items:center;gap:12px;position:fixed;top:0;left:0;right:0;
+    background:var(--surface);border-bottom:1px solid var(--border);
+    padding:12px 16px;z-index:45;font-weight:700;}
+  .topbar .menu{font-size:22px;cursor:pointer;background:none;border:none;color:var(--text);}
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:39;}
+  .overlay.show{display:block;}
+}
+.module{display:none;animation:fade .25s ease;}
+.module.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.module-head{margin-bottom:18px;}
+.module-head h2{font-size:24px;font-weight:800;letter-spacing:-.5px;}
+.module-head p{color:var(--text-2);font-size:13px;margin-top:3px;}
+/* 卡片 */
+.card{
+  background:var(--surface);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:18px;margin-bottom:16px;
+  border:1px solid var(--border);
+}
+.card h3{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.row{display:flex;gap:12px;flex-wrap:wrap;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;}
+.stat{
+  background:var(--surface-2);border-radius:14px;padding:14px;
+  border:1px solid var(--border);
+}
+.stat .v{font-size:24px;font-weight:800;line-height:1;}
+.stat .l{font-size:12px;color:var(--text-2);margin-top:6px;}
+/* 输入控件 */
+input,select,textarea{
+  font-family:inherit;font-size:14px;color:var(--text);
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:11px;padding:10px 12px;outline:none;width:100%;
+  transition:border .18s,box-shadow .18s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--c-blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--c-blue) 18%,transparent);}
+textarea{resize:vertical;min-height:60px;}
+.btn{
+  border:none;border-radius:11px;padding:10px 16px;font-size:14px;font-weight:700;
+  cursor:pointer;background:var(--c-blue);color:#fff;transition:transform .12s,opacity .18s;
+  display:inline-flex;align-items:center;gap:6px;justify-content:center;
+}
+.btn:active{transform:scale(.96);}
+.btn.purple{background:var(--c-purple);}
+.btn.green{background:var(--c-green);color:#06210f;}
+.btn.orange{background:var(--c-orange);}
+.btn.ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--border);}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:9px;}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:2px;}
+.field label{font-size:12px;color:var(--text-2);font-weight:600;}
+/* 待办 */
+.todo{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:13px;
+  background:var(--surface-2);margin-bottom:10px;border:1px solid var(--border);transition:.18s;}
+.todo:hover{box-shadow:var(--shadow);}
+.todo .chk{width:22px;height:22px;border-radius:7px;border:2px solid var(--border);
+  cursor:pointer;flex:0 0 22px;display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:#fff;transition:.18s;}
+.todo.done .chk{background:var(--c-green);border-color:var(--c-green);}
+.todo.done .txt{text-decoration:line-through;color:var(--text-2);}
+.todo .txt{flex:1;font-size:14px;font-weight:500;}
+.prio{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;}
+.prio.high{background:color-mix(in srgb,var(--c-pink) 18%,transparent);color:var(--c-pink);}
+.prio.mid{background:color-mix(in srgb,var(--c-orange) 20%,transparent);color:var(--c-orange);}
+.prio.low{background:color-mix(in srgb,var(--c-cyan) 22%,transparent);color:#0099c9;}
+.todo .del{cursor:pointer;color:var(--text-2);font-size:16px;padding:2px 6px;border-radius:8px;}
+.todo .del:hover{background:color-mix(in srgb,var(--c-pink) 14%,transparent);color:var(--c-pink);}
+/* 进度环 */
+.ring-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.ring{position:relative;width:140px;height:140px;flex:0 0 140px;}
+.ring svg{transform:rotate(-90deg);}
+.ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring .mid .p{font-size:26px;font-weight:800;}
+.ring .mid .s{font-size:11px;color:var(--text-2);}
+/* 餐次 tabs */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.tab{padding:8px 14px;border-radius:11px;background:var(--surface-2);border:1px solid var(--border);
+  cursor:pointer;font-size:13px;font-weight:600;color:var(--text-2);}
+.tab.active{background:var(--c-blue);color:#fff;border-color:var(--c-blue);}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:20px;
+  background:var(--surface-2);border:1px solid var(--border);cursor:pointer;font-size:12px;font-weight:600;}
+.chip:hover{border-color:var(--c-purple);color:var(--c-purple);}
+.chip .cal{color:var(--c-orange);}
+/* 饮食资料/BMR 表单 */
+.profile-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;align-items:flex-end;}
+.profile-form .field{margin:0;}
+.hidden{display:none !important;}
+.wizard-steps{display:flex;gap:10px;margin-bottom:8px;}
+.wizard-steps .step{flex:1;text-align:center;font-size:12px;font-weight:700;padding:8px 6px;border-radius:20px;background:var(--surface-2);color:var(--text-2);border:1px solid var(--border);}
+.wizard-steps .step.active{background:var(--c-purple);color:#fff;border-color:var(--c-purple);}
+.gender-choices,.mode-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+.gender-card,.mode-card{padding:18px 14px;border-radius:16px;background:var(--surface-2);border:2px solid var(--border);text-align:center;cursor:pointer;transition:.18s;}
+.gender-card:hover,.mode-card:hover{border-color:var(--c-purple);transform:translateY(-2px);}
+.gender-card.selected,.mode-card.selected{background:color-mix(in srgb,var(--c-purple) 12%,transparent);border-color:var(--c-purple);}
+.gender-card .emoji{font-size:36px;margin-bottom:6px;}
+.gender-card .title,.mode-card .title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px;}
+.gender-card .desc,.mode-card .desc{font-size:12px;color:var(--text-2);}
+.profile-summary{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px;border-radius:13px;background:var(--surface-2);border:1px solid var(--border);}
+.profile-summary .bmr-box{flex:1;min-width:160px;}
+.profile-summary .bmr-num{font-size:32px;font-weight:800;color:var(--c-purple);line-height:1;}
+.profile-summary .bmr-label{font-size:12px;color:var(--text-2);margin-top:4px;}
+.profile-summary .bmr-meta{font-size:13px;color:var(--text-2);}
+/* 热力图 */
+.heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-top:6px;}
+.heat-cell{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--surface-2);border:1px solid var(--border);font-size:11px;color:var(--text-2);}
+.heat-cell .d{font-weight:700;font-size:12px;color:var(--text);}
+.heat-cell .v{margin-top:3px;font-weight:700;}
+/* 记账 */
+.cat-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:20px;
+  background:var(--surface-2);border:1px solid var(--border);cursor:pointer;font-size:12px;font-weight:600;}
+.cat-pill.active{background:var(--c-indigo);color:#fff;border-color:var(--c-indigo);}
+.tx{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:12px;background:var(--surface-2);
+  margin-bottom:8px;border:1px solid var(--border);}
+.tx .ci{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--surface);}
+.tx .info{flex:1;}
+.tx .info .t{font-size:14px;font-weight:600;}
+.tx .info .s{font-size:11px;color:var(--text-2);}
+.tx .amt{font-weight:800;font-size:15px;}
+.tx .amt.exp{color:var(--c-pink);}
+.tx .amt.inc{color:var(--c-green);}
+.tx .del{cursor:pointer;color:var(--text-2);padding:3px 6px;border-radius:8px;}
+.tx .del:hover{color:var(--c-pink);background:color-mix(in srgb,var(--c-pink) 14%,transparent);}
+/* 读书 */
+.book{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:15px;margin-bottom:12px;}
+.book .bh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.book .bt{font-size:15px;font-weight:700;}
+.book .ba{font-size:12px;color:var(--text-2);margin-top:2px;}
+.book .bp{font-size:12px;color:var(--text-2);margin-top:8px;}
+.bar{height:9px;border-radius:20px;background:var(--border);overflow:hidden;margin-top:8px;}
+.bar > i{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,var(--c-cyan),var(--c-purple));transition:width .4s;}
+.note{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 11px;margin-top:8px;font-size:13px;}
+.note .nm{font-size:11px;color:var(--text-2);margin-bottom:3px;}
+/* 心情 */
+.moods{display:flex;gap:10px;flex-wrap:wrap;}
+.mood{font-size:30px;cursor:pointer;width:54px;height:54px;border-radius:14px;display:flex;
+  align-items:center;justify-content:center;background:var(--surface-2);border:2px solid transparent;transition:.15s;}
+.mood:hover{transform:scale(1.08);}
+.mood.active{border-color:var(--c-purple);background:color-mix(in srgb,var(--c-purple) 12%,transparent);}
+/* 单词卡 */
+.flip-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
+.flashcard{perspective:1000px;height:170px;cursor:pointer;}
+.flashcard .inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.flashcard.flipped .inner{transform:rotateY(180deg);}
+.flashcard .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center;
+  box-shadow:var(--shadow);border:1px solid var(--border);}
+.flashcard .front{background:linear-gradient(135deg,color-mix(in srgb,var(--c-indigo) 14%,var(--surface)),var(--surface));}
+.flashcard .back{background:linear-gradient(135deg,color-mix(in srgb,var(--c-cyan) 20%,var(--surface)),var(--surface));transform:rotateY(180deg);}
+.flashcard .w{font-size:20px;font-weight:800;}
+.flashcard .m{font-size:14px;color:var(--text-2);margin-top:6px;}
+.flashcard .tag{position:absolute;top:8px;right:10px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;}
+.flashcard .tag.rev{background:color-mix(in srgb,var(--c-orange) 20%,transparent);color:var(--c-orange);}
+.flashcard .tag.new{background:color-mix(in srgb,var(--c-green) 20%,transparent);color:var(--c-green);}
+/* 开发者配色 */
+.color-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+.color-item{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px;}
+.color-item .sw{height:38px;border-radius:9px;margin-bottom:8px;border:1px solid var(--border);}
+.color-item label{font-size:12px;font-weight:600;display:block;margin-bottom:6px;}
+.color-item input[type=color]{padding:2px;height:34px;cursor:pointer;}
+/* 浮窗 */
+.fab{
+  position:fixed;right:22px;bottom:22px;width:58px;height:58px;border-radius:50%;
+  background:linear-gradient(135deg,var(--c-purple),var(--c-pink));
+  display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;
+  box-shadow:var(--shadow-lg);z-index:60;border:none;color:#fff;
+}
+.fab:active{transform:scale(.93);}
+.ai-panel{
+  position:fixed;right:22px;bottom:92px;width:340px;max-width:calc(100vw - 32px);
+  background:var(--surface);border-radius:18px;box-shadow:var(--shadow-lg);
+  border:1px solid var(--border);z-index:60;padding:16px;display:none;animation:fade .2s;
+}
+.ai-panel.show{display:block;}
+.ai-panel h4{font-size:14px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:7px;}
+.ai-panel .hint{font-size:11px;color:var(--text-2);margin-bottom:10px;line-height:1.5;}
+.ai-log{max-height:150px;overflow-y:auto;margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+.ai-log .e{font-size:12px;padding:7px 10px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);}
+.ai-log .e.ok{color:var(--c-green);}
+.ai-log .e.err{color:var(--c-pink);}
+/* 弹窗 */
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:80;display:none;
+  align-items:center;justify-content:center;padding:20px;}
+.modal-mask.show{display:flex;}
+.modal{background:var(--surface);border-radius:20px;width:100%;max-width:640px;max-height:88vh;
+  overflow-y:auto;box-shadow:var(--shadow-lg);border:1px solid var(--border);}
+.modal .mh{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:2;}
+.modal .mh h3{font-size:17px;font-weight:800;}
+.modal .mh .x{cursor:pointer;font-size:22px;color:var(--text-2);background:none;border:none;}
+.modal .mb{padding:20px;}
+.insight{background:linear-gradient(135deg,color-mix(in srgb,var(--c-indigo) 12%,transparent),color-mix(in srgb,var(--c-cyan) 12%,transparent));
+  border-radius:14px;padding:15px;font-size:13px;line-height:1.7;}
+.insight b{color:var(--c-indigo);}
+/* toast */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);
+  background:var(--text);color:var(--bg);padding:11px 20px;border-radius:30px;font-size:13px;font-weight:600;
+  z-index:100;opacity:0;transition:.3s;box-shadow:var(--shadow-lg);pointer-events:none;max-width:90vw;text-align:center;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.empty{text-align:center;color:var(--text-2);font-size:13px;padding:20px;line-height:1.6;}
+.mini{font-size:12px;color:var(--text-2);}
+.flex-between{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.gap10{display:flex;gap:10px;flex-wrap:wrap;}
+.mt10{margin-top:10px;}.mt14{margin-top:14px;}.mt18{margin-top:18px;}
+.muted{color:var(--text-2);font-size:12px;}
+a.link{color:var(--c-blue);cursor:pointer;font-weight:600;}
+.chart-box{position:relative;height:240px;}
+/* 工作台首页 */
+.home-hero{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;gap:12px;flex-wrap:wrap;}
+.home-hero h2{font-size:26px;font-weight:800;letter-spacing:-.5px;}
+.home-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:18px;}
+.home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
+.home-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;box-shadow:var(--shadow);transition:.18s;position:relative;overflow:hidden;}
+.home-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+.hc-ico{font-size:26px;}
+.hc-name{font-weight:700;margin-top:8px;font-size:14px;}
+.hc-v{font-size:12px;color:var(--text-2);margin-top:4px;}
+.hc-go{position:absolute;top:14px;right:14px;font-size:12px;color:var(--c-purple);font-weight:700;}
+/* 移动端底部导航 */
+.bottom-nav{display:none;}
+@media(max-width:860px){
+  .bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--surface) 96%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--border);z-index:50;overflow-x:auto;padding:6px 6px calc(8px + env(safe-area-inset-bottom));gap:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .bottom-nav::-webkit-scrollbar{display:none;}
+  .bn-item{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 13px;border-radius:12px;color:var(--text-2);font-size:10px;font-weight:600;cursor:pointer;min-width:52px;transition:.15s;}
+  .bn-item .i{font-size:20px;line-height:1;}
+  .bn-item.active{color:var(--c-purple);background:color-mix(in srgb,var(--c-purple) 12%,transparent);}
+  .main{padding-bottom:96px;}
+}
+</style>
+</head>
+<body data-page-node-id="RRggsCd2FsVPpAZy7rcMyw">
+
+<!-- 侧边栏 -->
+<aside class="sidebar" id="sidebar" data-page-node-id="nJI9vz1BB4JV09UaHrKo1V">
+  <div class="brand" data-page-node-id="ZXUoHDEJkE7UaQIIi7aENM">
+    <div class="logo" data-page-node-id="UJLoL0sxuUB2uC87tThiFN">🌿</div>
+    <h1 data-page-node-id="xhfFrKgQVn4gJpNZPrxVLT">人生管理系统<span data-page-node-id="tMwnfmuP8U087VMBdvHMdB">Life OS</span></h1>
+  </div>
+  <button class="install-btn" id="installBtn" data-page-node-id="ZXUoInstall" title="安装到手机/电脑桌面，像 App 一样打开">📲 部署到桌面</button>
+  <div class="nav-item active" data-mod="home"><span class="ico">🏠</span>工作台</div>
+  <div class="nav-item" data-mod="plan" data-page-node-id="QUy1ukE8CZGxRsLQuJD50E"><span class="ico" data-page-node-id="YBJPjIn15RyIlgTTrBaAWu">✅</span>每日计划</div>
+  <div class="nav-item" data-mod="diet" data-page-node-id="i8gFKnC0nVYUEa2ZiXuwqZ"><span class="ico" data-page-node-id="DFHKRHAU72gFEfAcxJkoJ7">🍱</span>饮食记录</div>
+  <div class="nav-item" data-mod="exercise" data-page-node-id="SmDcjmzTsuXA7o5GYUJCbI"><span class="ico" data-page-node-id="rUoCiiDeZNM4SFgNcJOgtC">🏃</span>运动打卡</div>
+  <div class="nav-item" data-mod="finance" data-page-node-id="SSHEfWcR5du1L8NEGUGWoL"><span class="ico" data-page-node-id="90L6wBBgG7PLTarr8keTS4">💰</span>记账存钱</div>
+  <div class="nav-item" data-mod="books" data-page-node-id="9nWLZLZYVaMZaz52MyDvnl"><span class="ico" data-page-node-id="L1H045mf89xdvE3kMmx5ae">📚</span>读书收获</div>
+  <div class="nav-item" data-mod="mood" data-page-node-id="G6aHL26rOFp78wRcCj5vUC"><span class="ico" data-page-node-id="XQVjV3QuHYRq5SfIMol0EU">😊</span>心情记录</div>
+  <div class="nav-item" data-mod="english" data-page-node-id="m4BpPBybyR88jD1xGMocdh"><span class="ico" data-page-node-id="pNhHMrJ4DCjQdASgPPhBUq">🔤</span>英语</div>
+  <div class="nav-item" data-mod="dev" data-page-node-id="tFavP4HAqVsKU1ZXE2cQPD"><span class="ico" data-page-node-id="cvVDt32iyZfnC6yzvO689X">🎨</span>开发者</div>
+  <div class="nav-sep" data-page-node-id="PcMed3DQEMvQvTxiGd9Q8y"></div>
+  <button class="analysis-btn" id="analysisBtn" data-page-node-id="wIIStF0lNnq2qUGon0IhVy">📊 周度数据分析</button>
+</aside>
+<div class="overlay" id="overlay" data-page-node-id="sEQZ1vH5S3n04SnA3BelSu"></div>
+
+<!-- 顶部栏(手机) -->
+<div class="topbar" data-page-node-id="H6c2rChZTJkFLdH6a6f0H0">
+  <button class="menu" id="menuBtn" data-page-node-id="03D9Jstq3dDZV8wRiMhyGF">☰</button>
+  <span data-page-node-id="7ZSKRtTl9UGnfBwdM6t2a5">人生管理系统</span>
+</div>
+
+<!-- 内容区 -->
+<main class="main" data-page-node-id="QycGx8TYVY5ntqXKptXmQp">
+
+  <!-- 工作台首页 -->
+  <section class="module active" id="mod-home">
+    <div class="home-hero">
+      <div>
+        <h2 id="homeGreet">工作台</h2>
+        <p class="muted" id="homeDate"></p>
+      </div>
+      <button class="btn purple sm" id="homeAnalyze">📊 周度分析</button>
+    </div>
+    <div class="home-stats" id="homeStats"></div>
+    <div class="home-grid" id="homeCards"></div>
+  </section>
+
+  <!-- 每日计划 -->
+  <section class="module" id="mod-plan" data-page-node-id="rSFr7pGfKEq58W815k18ZO">
+    <div class="module-head" data-page-node-id="od5ZSVEBani22A9a4WDdGm"><h2 data-page-node-id="byebbj0dN70dpo5s5FT8YS">每日计划</h2><p data-page-node-id="yZAXEDWRKp1q45ETkEEace">规划今天，勾选完成，看见进度。</p></div>
+    <div class="card" data-page-node-id="O8C5KYCpABmJiTC4T7Qnqk">
+      <div class="stat-grid" data-page-node-id="Gqz6NFLu6AbnlPYH3kOgqS">
+        <div class="stat" data-page-node-id="bWPHktqG9DiuUUxRUoMMOh"><div class="v" id="planTotal" data-page-node-id="dJP3AsooZUK3PtTJ57zVFj">0</div><div class="l" data-page-node-id="jnzgAn40OhEpOcNBTIpAsR">今日任务</div></div>
+        <div class="stat" data-page-node-id="RU6nXZ6LAId3IGPGynOsnS"><div class="v" id="planDone" style="color:var(--c-green)" data-page-node-id="PGD1ZOQIQJliWA8bUmKcVw">0</div><div class="l" data-page-node-id="P3AyD8GX02uJmD24yKQJXg">已完成</div></div>
+        <div class="stat" data-page-node-id="LVCn2L8Rh4mcTMRzNUCx0V"><div class="v" id="planRate" style="color:var(--c-purple)" data-page-node-id="YUjeFUYwJSBWkElHK4bNvS">0%</div><div class="l" data-page-node-id="aYTsABVyz2lxvvKmmI0Spr">完成率</div></div>
+      </div>
+      <div class="ring-wrap mt18" style="justify-content:center" data-page-node-id="tgSC8xpKjLuhqVedJMusow">
+        <div class="ring" id="planRing" data-page-node-id="wEjFdVKCB2MBcrAMwlUw99"></div>
+      </div>
+    </div>
+    <div class="card" data-page-node-id="FefZsGbSMiradIHwtFD0nr">
+      <div class="gap10" style="align-items:flex-end" data-page-node-id="3NNZOmEy9JYoVLEgb3QUGS">
+        <div class="field" style="flex:1" data-page-node-id="w3uckhm8AsOQyyMGblAUFJ"><label data-page-node-id="OHKud7vTTidszgqkRhHHrE">任务内容</label><input id="planText" placeholder="例如：写周报 / 健身30分钟" data-page-node-id="Bdu8YefuwPcJMrHYEMApHu"></div>
+        <div class="field" style="width:130px" data-page-node-id="gH54DO15dNpLmHlhmYNPw2"><label data-page-node-id="u5x6o1FjLA9zn8iK7GgfCH">优先级</label>
+          <select id="planPrio" data-page-node-id="MCFaT3cnnUoa2ymCMCMW6n"><option value="high" data-page-node-id="b56YuoGgq5hmQ5aPZ8xTp7">高</option><option value="mid" selected data-page-node-id="wTHobQxm1p1NfhFMvt0pOw">中</option><option value="low" data-page-node-id="YW0E5YBUElseyDC1PFxAUg">低</option></select>
+        </div>
+        <button class="btn purple" id="planAdd" data-page-node-id="KmguT0TaykYDRFErpJFE3O">添加</button>
+      </div>
+      <div class="mt14" id="planList" data-page-node-id="vAzvNeryQzqPKHAijQH8mk"></div>
+    </div>
+  </section>
+
+  <!-- 饮食记录 -->
+  <section class="module" id="mod-diet" data-page-node-id="HDFEYPYNbXbxkdG0ShqYh6">
+    <div class="module-head" data-page-node-id="WlwLPz0bz35YvSMFgAKtVW"><h2 data-page-node-id="Hdx53m2SzcrAVd2QJRNcmC">饮食记录</h2><p data-page-node-id="Uj8AA5Yl5wO1qG8LYBKPHg">记录每一餐，掌控卡路里。</p></div>
+
+    <!-- 个人资料 / BMR 目标设置 -->
+    <div class="card" id="dietProfileCard" data-page-node-id="HDFEYPYNbXbxkdG0ShqYhP">
+      <h3 data-page-node-id="HDFEYPYNbXbxkdG0ShqYhT">🧑 个人基础代谢设置</h3>
+      <p class="mini" data-page-node-id="HDFEYPYNbXbxkdG0ShqYhD">选择性别与更适合你的计算方式，算出基础代谢（BMR）后自动设为每日饮食目标。</p>
+
+      <div class="wizard-steps mt14" data-page-node-id="DPstp1">
+        <span class="step" id="dpStepGender">1. 性别</span>
+        <span class="step" id="dpStepMode">2. 算法</span>
+        <span class="step" id="dpStepData">3. 数据</span>
+      </div>
+
+      <!-- 步骤 1：性别 -->
+      <div id="dpPanelGender" class="step-panel mt14" data-page-node-id="DPpGender">
+        <p class="mini">请选择性别，界面会根据你的选择切换专属色调。</p>
+        <div class="gender-choices">
+          <div class="gender-card" data-g="male" data-page-node-id="DPgcMale">
+            <div class="emoji">👨</div>
+            <div class="title">男生</div>
+            <div class="desc">黑白 · 简约</div>
+          </div>
+          <div class="gender-card" data-g="female" data-page-node-id="DPgcFemale">
+            <div class="emoji">👩</div>
+            <div class="title">女生</div>
+            <div class="desc">粉色 · 可爱</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 步骤 2：算法选择 -->
+      <div id="dpPanelMode" class="step-panel mt14 hidden" data-page-node-id="DPpMode">
+        <p class="mini">选择你的数据条件，两种算法都会得出 BMR。</p>
+        <div class="mode-choices">
+          <div class="mode-card" data-m="bf" data-page-node-id="DPmcBf">
+            <div class="title">📊 我知道精确体脂率</div>
+            <div class="desc">按 Katch-McArdle 公式（更精准）</div>
+          </div>
+          <div class="mode-card" data-m="noBf" data-page-node-id="DPmcNoBf">
+            <div class="title">🤷 我不知道体脂率</div>
+            <div class="desc">按 Mifflin-St Jeor 公式估算</div>
+          </div>
+        </div>
+        <button class="btn ghost sm" onclick="backDietProfile('gender')" style="margin-top:12px">← 上一步</button>
+      </div>
+
+      <!-- 步骤 3：数据填写 -->
+      <div id="dpPanelForm" class="step-panel mt14 hidden" data-page-node-id="DPpForm">
+        <div id="dpBfForm" class="profile-form hidden" data-page-node-id="DPfBf">
+          <div class="field"><label>体重（kg）</label><input id="dpBfWeight" type="number" placeholder="75"></div>
+          <div class="field"><label>体脂率（%）</label><input id="dpBfPercent" type="number" step="0.1" placeholder="例如 15"></div>
+          <div class="field" style="visibility:hidden"><label>&nbsp;</label><span>&nbsp;</span></div>
+        </div>
+        <div id="dpNoBfForm" class="profile-form hidden" data-page-node-id="DPfNoBf">
+          <div class="field"><label>年龄（岁）</label><input id="dpAge" type="number" placeholder="25"></div>
+          <div class="field"><label>身高（cm）</label><input id="dpHeight" type="number" placeholder="170"></div>
+          <div class="field"><label>体重（kg）</label><input id="dpWeight" type="number" placeholder="65"></div>
+        </div>
+        <div class="mt10">
+          <button class="btn ghost sm" onclick="backDietProfile('mode')">← 上一步</button>
+          <button class="btn purple" id="dietProfileBtn">计算并保存</button>
+        </div>
+      </div>
+
+      <div id="dietProfileSummary" class="hidden mt14" data-page-node-id="HDFEYPYNbXbxkdG0ShqYhS"></div>
+    </div>
+
+    <div id="dietMain" data-page-node-id="HDFEYPYNbXbxkdG0ShqYhC">
+      <div class="card" data-page-node-id="QiyhoMLHTeO5YuGJd9dEdz">
+        <div class="stat-grid" data-page-node-id="uGhXOOGBcoRv0fyBKGZYhn">
+          <div class="stat" data-page-node-id="naDWqpHIGdEtq782VKC2Ig"><div class="v" id="dietIntake" style="color:var(--c-orange)" data-page-node-id="GzGXXkISaorEN0GZbLQBsj">0</div><div class="l" data-page-node-id="jJUMklJCbBsetxTj6c2PLA">今日摄入(kcal)</div></div>
+          <div class="stat" data-page-node-id="9hvKdCvbECWFrxB86LP0tA"><div class="v" id="dietGoal" data-page-node-id="Z9jcrSfI2WnZtby6ND5KMi">2000</div><div class="l" data-page-node-id="S4a3CGQUI2Gm619QOjDRY0">目标</div></div>
+          <div class="stat" data-page-node-id="9zvnPoiVFHMHlKsBcpAv04"><div class="v" id="dietLeft" style="color:var(--c-green)" data-page-node-id="GvN4TP5LERdwNz81gxLL8s">2000</div><div class="l" data-page-node-id="fUlREfMlXdrbov0X69EnLz">剩余额度</div></div>
+        </div>
+        <div class="ring-wrap mt14" style="justify-content:center" data-page-node-id="cYWtWXNlyAjiOuAQpYS2aD">
+          <div class="ring" id="dietRing" data-page-node-id="HLYxuFAEASqihnkSJw9krt"></div>
+        </div>
+      </div>
+      <div class="card" data-page-node-id="sKG3yR2AUJEsgGE6GUrUGC">
+        <div class="tabs" id="dietTabs" data-page-node-id="XejCxN7eGHIuRsHkbfvRA3">
+          <div class="tab active" data-meal="breakfast" data-page-node-id="uwdclwBCbG5YtpbeXBDc6o">🌅 早餐</div>
+          <div class="tab" data-meal="lunch" data-page-node-id="RllE7crCKuX9ElJzd7ELJR">☀️ 午餐</div>
+          <div class="tab" data-meal="dinner" data-page-node-id="w3KNwEFZHauRD0IIsu5Tgq">🌙 晚餐</div>
+          <div class="tab" data-meal="snack" data-page-node-id="2mdC1JDHB98k05HximXqpZ">🍪 加餐</div>
+        </div>
+        <div class="gap10" style="align-items:flex-end" data-page-node-id="VJuIrdH9qY0Ia3K8NDwL3G">
+          <div class="field" style="flex:1" data-page-node-id="J5mOUCP4fvTCkhUFnlAcyl"><label data-page-node-id="z1b5diKaGha3KKgBoFEQ1t">食物名称</label><input id="dietName" placeholder="例如：鸡胸肉" data-page-node-id="yWXFGOD5yNuG7reMhsU0y3"></div>
+          <div class="field" style="width:120px" data-page-node-id="A1EZ6xBjfbw7gHZzb6kOUE"><label data-page-node-id="VINSQEPGs23mYofyhRGkHV">卡路里(kcal)</label><input id="dietCal" type="number" placeholder="200" data-page-node-id="ZZI0qgpGyQfMeQwnxHGjht"></div>
+          <button class="btn purple" id="dietAdd" data-page-node-id="5PJIsTSJHNQCsRefARhAT5">添加</button>
+        </div>
+        <div class="mt10" data-page-node-id="pzPdUjXDEIDMjitD3w3Qul"><span class="mini" data-page-node-id="sqM2LBlFITss11LJMjXYVh">高频快捷录入：</span><span id="dietQuick" class="gap10" style="display:inline-flex" data-page-node-id="eGTcLiKLkp5ChvTDmDGqIi"></span></div>
+        <div class="mt14" id="dietList" data-page-node-id="jdeDV8wGjmUX0ruURDMEXu"></div>
+      </div>
+      <div class="card" data-page-node-id="mZkqNpbZdFdvewiBai14Su">
+        <h3 data-page-node-id="ruDOPkspiXjSOBX9Syzmmh">📈 本周摄入趋势</h3>
+        <div class="chart-box" data-page-node-id="3pmqiNnCpC5N8GPwdfveEQ"><canvas id="dietChart" data-page-node-id="ltzDsAX7MzDO1UHBi2IBwN"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 运动打卡 -->
+  <section class="module" id="mod-exercise">
+    <div class="module-head"><h2>运动打卡</h2><p>坚持运动，看见连续的自己。</p></div>
+    <div class="card">
+      <div class="stat-grid">
+        <div class="stat"><div class="v" id="exStreak" style="color:var(--c-purple)">0</div><div class="l">连续打卡(天)</div></div>
+        <div class="stat"><div class="v" id="exWeek" style="color:var(--c-green)">0</div><div class="l">本周次数</div></div>
+        <div class="stat"><div class="v" id="exCal" style="color:var(--c-orange)">0</div><div class="l">本周消耗(kcal)</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>🗓️ 本周打卡热力图</h3>
+      <div class="heatmap" id="exHeat"></div>
+    </div>
+    <div class="card" id="exCard">
+      <div class="field" style="max-width:320px">
+        <label>运动类型</label>
+        <select id="exType">
+          <optgroup label="常规运动">
+            <option value="跑步">🏃 跑步</option>
+            <option value="游泳">🏊 游泳</option>
+            <option value="骑车">🚴 骑车</option>
+            <option value="跳绳">🪢 跳绳</option>
+            <option value="篮球">🏀 篮球</option>
+            <option value="网球">🎾 网球</option>
+            <option value="羽毛球">🏸 羽毛球</option>
+            <option value="慢走">🚶 慢走</option>
+          </optgroup>
+          <optgroup label="力量健身">
+            <option value="胸部">💪 胸部</option>
+            <option value="背部">🔙 背部</option>
+            <option value="腿部">🦵 腿部</option>
+            <option value="肩部">🤷 肩部</option>
+            <option value="手臂">💪 手臂</option>
+            <option value="核心">🧘 核心</option>
+            <option value="臀部">🍑 臀部</option>
+          </optgroup>
+        </select>
+      </div>
+      <div id="exRegularFields" class="gap10" style="align-items:flex-end;margin-top:10px">
+        <div class="field" style="width:130px"><label>时长(分钟)</label><input id="exMin" type="number" placeholder="30"></div>
+        <div class="field" style="width:130px"><label>消耗(kcal)</label><input id="exRegCal" type="number" placeholder="自动估算"></div>
+        <button class="btn purple" id="exRegEstimate">自动估算</button>
+      </div>
+      <div id="exStrengthFields" class="hidden" style="margin-top:10px">
+        <div class="profile-form">
+          <div class="field"><label>动作数量</label><input id="exActions" type="number" placeholder="例如 4"></div>
+          <div class="field"><label>每组次数</label>
+            <select id="exReps"><option value="8">8 次（系数 0.9）</option><option value="10" selected>10 次（系数 1.0）</option><option value="12">12 次（系数 1.1）</option></select>
+          </div>
+          <div class="field"><label>每组组数</label><input id="exSets" type="number" placeholder="例如 4"></div>
+          <div class="field"><label>组间间歇(分钟)</label><input id="exRest" type="number" step="0.5" placeholder="自动"></div>
+          <div class="field" style="flex-basis:100%"><label>总组数（自动）</label><input id="exTotalSets" type="text" readonly placeholder="动作数量 × 每组组数" style="background:var(--surface-2);color:var(--text-2)"></div>
+        </div>
+        <div class="gap10" style="align-items:flex-end;margin-top:10px">
+          <div class="field" style="width:140px"><label>消耗(kcal)</label><input id="exStrCal" type="number" placeholder="先估算"></div>
+          <button class="btn purple" id="exStrEstimate">自动估算</button>
+        </div>
+      </div>
+      <div class="mt14"><button class="btn purple" id="exAdd" style="width:100%">✅ 打卡</button></div>
+      <div class="mt14" id="exList"></div>
+    </div>
+  </section>
+
+  <!-- 记账存钱 -->
+  <section class="module" id="mod-finance" data-page-node-id="huzsM1s669bfYz9mIDVcP0">
+    <div class="module-head" data-page-node-id="dstIfJnWgX6UuWaYYS7FgM"><h2 data-page-node-id="hm5x2PJOlJsuNOEmKcQMZ6">记账存钱</h2><p data-page-node-id="jeHolbgolRRIA6THhZc3op">理清收支，积累财富。</p></div>
+    <div class="card" data-page-node-id="Fb4nZN9Q1n9U5f7aUFllJZ">
+      <div class="stat-grid" data-page-node-id="05cG03dOTBIsnyqnaxwhC1">
+        <div class="stat" data-page-node-id="GfBuD5dKK8NkyPwdiD4rxb"><div class="v" id="finInc" style="color:var(--c-green)" data-page-node-id="hajrb0xBoU6KdF25F1dWYD">0</div><div class="l" data-page-node-id="XxTkeP8tr5j3jvzRQjUabm">本月收入</div></div>
+        <div class="stat" data-page-node-id="6GocZ3zDTUiRGgbDlxxVqD"><div class="v" id="finExp" style="color:var(--c-pink)" data-page-node-id="SDXKuStpW83PHGM6eJ4R2O">0</div><div class="l" data-page-node-id="jqYvm800XzHlhF3VOnJnI6">本月支出</div></div>
+        <div class="stat" data-page-node-id="w5YDsDzVGbC5oPQRMR0XAZ"><div class="v" id="finBal" style="color:var(--c-purple)" data-page-node-id="BAMsLi6DkKapZEUXfVRntf">0</div><div class="l" data-page-node-id="eCKGfHAqnJ74PV75suSych">本月结余</div></div>
+      </div>
+    </div>
+    <div class="card" data-page-node-id="d9gQmyJwwAtv77UHZUewkP">
+      <div class="gap10" style="margin-bottom:14px" data-page-node-id="tsMIpZDPkV6VVu7ptA0btL">
+        <div class="cat-pill active" data-ftype="expense" data-fcat="" data-page-node-id="jpuIvmODLn4wkIkEcuSrVJ">支出</div>
+        <div class="cat-pill" data-ftype="income" data-fcat="" data-page-node-id="JDVAl3SR1XjxFA61Zj9U8q">收入</div>
+      </div>
+      <div id="finCats" class="gap10" style="margin-bottom:14px" data-page-node-id="kIdt9ErTkcNuytSqegOUNJ"></div>
+      <div class="gap10" style="align-items:flex-end" data-page-node-id="6YZn4EmBKzKdT940R7S67j">
+        <div class="field" style="flex:1" data-page-node-id="pC5zNAZ3KYFs284alUoWj6"><label data-page-node-id="bedqRVThp4QpDIDGx44Qj8">金额(元)</label><input id="finAmt" type="number" placeholder="100" data-page-node-id="RRxNS3J7sKxd4sEpuwCSlf"></div>
+        <div class="field" style="flex:1.4" data-page-node-id="AzZ7aVZxh1UpeLLpEX1C8a"><label data-page-node-id="iflwELXtxn6eBja9WE0jsi">备注</label><input id="finNote" placeholder="选填" data-page-node-id="eDhxXyvz5UTugltQdemrqK"></div>
+        <button class="btn purple" id="finAdd" data-page-node-id="tyTlImK0AL0ShCDbNChLfr">记一笔</button>
+      </div>
+      <div class="mt14" id="finList" data-page-node-id="c0JI0hbSIJZcx4N1M5rjOU"></div>
+    </div>
+    <div class="card" data-page-node-id="WDql6gDSGFSYckpNYBB7UW">
+      <h3 data-page-node-id="aSBqY6WOGlcPjsTifEYYBW">🥧 本月支出分类</h3>
+      <div class="chart-box" data-page-node-id="o3nYriZLq1pSpCWq3wO7qP"><canvas id="finChart" data-page-node-id="RCMXyEZIaHNN4veSqZaBzv"></canvas></div>
+    </div>
+  </section>
+
+  <!-- 读书收获 -->
+  <section class="module" id="mod-books" data-page-node-id="oMGyUBRpl9jRnDoLJiXERW">
+    <div class="module-head" data-page-node-id="vb4fMnvRBB3XbCV3tPUrSd"><h2 data-page-node-id="NfOfEKQV5ICC8sXtcAHRCo">读书收获</h2><p data-page-node-id="j9jKGjn8FVQ9ChIpJ1pFey">读过的书，写下的思考。</p></div>
+    <div class="card" data-page-node-id="eYeeq8mU2eHCdkqQUqdB4k">
+      <div class="gap10" style="align-items:flex-end" data-page-node-id="8Jaok7kvJJoD69hyCwY3la">
+        <div class="field" style="flex:1.3" data-page-node-id="0Vd7ENYr5kQcbjXPVpPQZu"><label data-page-node-id="6yyOWvjStGE0nONEoYfATz">书名</label><input id="bkTitle" placeholder="例如：人类简史" data-page-node-id="Z73J7alEvISusrRgOjJvZA"></div>
+        <div class="field" style="flex:1" data-page-node-id="WwrHPIcBhLl0BpapQZlz1p"><label data-page-node-id="ckZCbL9kpWC6FMHZuyDPf3">作者</label><input id="bkAuthor" placeholder="选填" data-page-node-id="AAme0aV9GLoAxVmamHR7TR"></div>
+        <div class="field" style="width:110px" data-page-node-id="vVo0nq3CNunRwLwIItAARi"><label data-page-node-id="4zjGZ4GYKvud3xuKN4l9o0">总页数</label><input id="bkPages" type="number" placeholder="320" data-page-node-id="yOgsEXvVAegsyJ8BYBW7MD"></div>
+        <button class="btn purple" id="bkAdd" data-page-node-id="Ha0tneMGmQAWZvPhGQpB8Y">添加</button>
+      </div>
+    </div>
+    <div id="bkList" data-page-node-id="Gm0Kl8KNmYH0lyuDTbVCtP"></div>
+  </section>
+
+  <!-- 心情记录 -->
+  <section class="module" id="mod-mood" data-page-node-id="eJnn0gT3iQ1tEdpwwUHxBv">
+    <div class="module-head" data-page-node-id="VrBeBvrtVGeA1VvdkQzwib"><h2 data-page-node-id="09yIo0th4QnvGRNZul4GWv">心情记录</h2><p data-page-node-id="dobbQ6HdozZwdnEAxyIIOF">关注情绪，温柔待己。</p></div>
+    <div class="card" data-page-node-id="pxFubdcpYRbqCoFOw8uXFr">
+      <h3 data-page-node-id="EOBj8faFiGaBNMmzM9kQLG">今天的心情是？</h3>
+      <div class="moods mt10" id="moodPick" data-page-node-id="chkObwoTNMRBmjZUFPJgMw"></div>
+      <div class="mt14" data-page-node-id="RjnbufyO5D6hHx8cXe4P6S"><label class="mini" data-page-node-id="imohnNCeMME6JqPCdEIPK9">写点什么（选填）</label>
+        <textarea id="moodText" placeholder="今天发生了什么…"></textarea></div>
+      <button class="btn purple mt10" id="moodSave" data-page-node-id="u8beGfzQxC17ez0TJCaMSG">保存今日心情</button>
+    </div>
+    <div class="card" data-page-node-id="y26Whj9tU3LAg2s0X958rm">
+      <h3 data-page-node-id="8PyMFgNwnftH0roMk3cQ9J">📈 本周心情趋势</h3>
+      <div class="chart-box" data-page-node-id="qNzz1ZTdhqBG7DPzac3el3"><canvas id="moodChart" data-page-node-id="esyuGdeZL13JzuMfzjfr1r"></canvas></div>
+    </div>
+    <div class="card" data-page-node-id="I5IJKJuAC02Ll1TQEvOqGH"><div id="moodList" data-page-node-id="56wihFgPmgogW6QTeGGX8E"></div></div>
+  </section>
+
+  <!-- 英语 -->
+  <section class="module" id="mod-english" data-page-node-id="M1dmQ0WP5Wf22aFbhdU9L9">
+    <div class="module-head" data-page-node-id="EjNBWcR9kx7tzBuaHf5PBC"><h2 data-page-node-id="3BAOKLkL4wHlyB2ZJazNUG">英语单词</h2><p data-page-node-id="Eou3k3OFTv8kacGr4RDgA9">每日积累，翻转复习。</p></div>
+    <div class="card" data-page-node-id="E4kExkrMwF3dLIkS7Qxkd2">
+      <div class="stat-grid" data-page-node-id="Gq8aqd6bkptaUuwzOqWoGy">
+        <div class="stat" data-page-node-id="bYXpAbGhfQ51ft5DEOXlzD"><div class="v" id="enTotal" style="color:var(--c-indigo)" data-page-node-id="ZiyuK3GVn6HUhMQyrWVAbH">0</div><div class="l" data-page-node-id="FdGUyeTVEDq2cltVGbnPGz">累计单词</div></div>
+        <div class="stat" data-page-node-id="ip9L4Fux4e10m0pEx4Rfzd"><div class="v" id="enToday" style="color:var(--c-green)" data-page-node-id="2eE8BeTHRpXVDdCgf120UG">0</div><div class="l" data-page-node-id="NgiAPybhG9igA2giZf1B1W">今日新增</div></div>
+        <div class="stat" data-page-node-id="dAh32xVaDaCcPhSS45bG5b"><div class="v" id="enRev" style="color:var(--c-orange)" data-page-node-id="H31w3FyMqHYFqniwlRYHER">0</div><div class="l" data-page-node-id="Irb4JbgXRHOFBJiXkrWUsT">待复习</div></div>
+      </div>
+      <div class="gap10 mt14" style="align-items:flex-end" data-page-node-id="wxYaHrb8AtNXXA26HsUba3">
+        <div class="field" style="width:130px" data-page-node-id="oPn29SRZcKu8mM1o6wAtFR"><label data-page-node-id="p99zjCTxOlnG4bfU4DANBP">每日目标</label><input id="enGoal" type="number" placeholder="20" data-page-node-id="F1OsStBMHBoIcr2BFPPoAy"></div>
+        <button class="btn ghost" id="enGoalSet" data-page-node-id="EZIklnMJKqJaDDefPtnPRD">设定</button>
+        <span class="mini" id="enGoalTxt" data-page-node-id="3q0zmVnEsi1U6kA29Egy9x"></span>
+      </div>
+    </div>
+    <div class="card" data-page-node-id="8AliA8QAosZr8XudnghYv5">
+      <div class="gap10" style="align-items:flex-end" data-page-node-id="0kKUQKUbKCaLQwfcNtsAQy">
+        <div class="field" style="flex:1" data-page-node-id="cWHszRSrecbCORSr5TWAmC"><label data-page-node-id="l0yJEahkoezhIYkSbdewGw">单词</label><input id="enWord" placeholder="例如：serendipity" data-page-node-id="euBYUrPcmhoIGPx1Owx7ez"></div>
+        <div class="field" style="flex:1.4" data-page-node-id="A4RTHqXwpAGUsxwa6ufE9q"><label data-page-node-id="KPd3PT0BiyoxySUWRONtUl">释义</label><input id="enMean" placeholder="例如：意外发现珍奇事物的本领" data-page-node-id="Jb5X3RUrp4PbIfGnn5czOj"></div>
+        <button class="btn purple" id="enAdd" data-page-node-id="BcwyjD1nRRZRQ4gGxcr56b">添加</button>
+      </div>
+    </div>
+    <div class="card" data-page-node-id="x6pYoXEWoYGtLpJlop0tvV">
+      <h3 data-page-node-id="Ge0PXAOoxAacqGXFGBH8F0">📚 单词卡（点击翻转）</h3>
+      <div class="flip-wrap mt14" id="enCards" data-page-node-id="barJROhgwsPkuuF9WNM5GR"></div>
+    </div>
+    <div class="card" data-page-node-id="b9nhCWiMNP5lCwuHNu4TBL">
+      <h3 data-page-node-id="zbTtRvHRI5TpDLLVZKBD73">📈 本周学习量</h3>
+      <div class="chart-box" data-page-node-id="48DYmwbDhj8lOVAiVfCLNb"><canvas id="enChart" data-page-node-id="VReE5nGw5ljzADTMh7MDYG"></canvas></div>
+    </div>
+  </section>
+
+  <!-- 开发者 -->
+  <section class="module" id="mod-dev" data-page-node-id="hY2IDxyW5Om7VJXB21xrgm">
+    <div class="module-head" data-page-node-id="sHnoeGD02Cre7m1oZvTRKZ"><h2 data-page-node-id="6hMB2ccoV2BuHV9Lg0ThSw">开发者 · 主题配色</h2><p data-page-node-id="u6e2kfsDOfIR5XDDwIMZyU">实时调整界面颜色，支持暗/亮色切换。</p></div>
+    <div class="card" data-page-node-id="igEyTAnvzpP0Lg64BllfiK">
+      <div class="flex-between" style="margin-bottom:14px" data-page-node-id="DJdLB5VVCHZSfz647mCOcw">
+        <div data-page-node-id="ZPrGZqPrqw3uPX0MnCuQNq">
+          <div style="font-weight:700" data-page-node-id="nJ9FeJTs62Vv8ZuAIIeWWy">外观模式</div>
+          <div class="mini" data-page-node-id="glAX3UIXQgwju1cUUEHkSy">切换亮色 / 暗色主题</div>
+        </div>
+        <button class="btn ghost" id="themeToggle" data-page-node-id="kGJHhuD8gNCTsT7w8vs5cL">🌙 切换暗色</button>
+      </div>
+      <div class="color-grid" id="colorGrid" data-page-node-id="EsNeHSWrAmtMgfXUow2yPb"></div>
+      <div class="gap10 mt18" data-page-node-id="0BGLABQrkKCKvguS7239lB">
+        <button class="btn ghost" id="resetColor" data-page-node-id="SHTYt3L4o2D3s4oh65l3br">恢复默认配色</button>
+        <button class="btn ghost" id="exportBtn" data-page-node-id="RWVidePV9Hzy6XzpJVN6yL">⬇ 导出备份(JSON)</button>
+        <button class="btn ghost" id="importBtn" data-page-node-id="UX6p3iARDGVtl7EJh1ISmc">⬆ 导入备份</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none" data-page-node-id="6Iw2VjWHWEKkRoZwfuG4sF">
+      </div>
+    </div>
+    <div class="card" data-page-node-id="ipLnCz79T0ogWwc3OA5MhL">
+      <h3 data-page-node-id="cZuzzVPRvrDww7bYVdnl9S">☁️ 云端同步（可选）</h3>
+      <div class="mini" style="line-height:1.7;margin-bottom:12px" data-page-node-id="v4DPI2EDHMWmh0uDQsCujN">
+        每次记录都会自动保存到本机浏览器(localStorage)。若需跨设备同步，可配置一个支持 GET/PUT JSON 的接口地址，
+        点击“上传到云端 / 从云端拉取”即可。未配置则仅本地保存。
+      </div>
+      <div class="gap10" style="align-items:flex-end" data-page-node-id="LTSOynSMgfqOR7UjEgrP78">
+        <div class="field" style="flex:1" data-page-node-id="kiAZZfZ9Tcu85QSR17MEdh"><label data-page-node-id="6zjVOjcNtdEmALUlMVImpe">同步地址(URL)</label><input id="syncUrl" placeholder="https://your-api.com/state" data-page-node-id="BHMPpAcWEGLTvyI8dEQw0N"></div>
+        <div class="field" style="width:160px" data-page-node-id="8j1D8AIrr4Wwg1DBREoAS7"><label data-page-node-id="trQPjFRAWlR8k3rRCEZbVJ">令牌(可选)</label><input id="syncToken" placeholder="Bearer token" data-page-node-id="qfQasPv8AerZfCQaF5t51j"></div>
+      </div>
+      <div class="gap10 mt14" data-page-node-id="QlJ1DVx51cAojATHJjogrE">
+        <button class="btn ghost" id="syncPush" data-page-node-id="2iJ3tFy5mC9wQFnqc40uIo">⬆ 上传到云端</button>
+        <button class="btn ghost" id="syncPull" data-page-node-id="4UNGQgveuCoQQRgi1A4t31">⬇ 从云端拉取</button>
+        <button class="btn ghost" id="syncSave" data-page-node-id="gOqHswjIR8f7NdH46k6O7I">保存同步设置</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- 移动端底部导航 -->
+<nav class="bottom-nav" id="bottomNav">
+  <div class="bn-item active" data-mod="home"><span class="i">🏠</span>工作台</div>
+  <div class="bn-item" data-mod="plan"><span class="i">✅</span>计划</div>
+  <div class="bn-item" data-mod="diet"><span class="i">🍱</span>饮食</div>
+  <div class="bn-item" data-mod="exercise"><span class="i">🏃</span>运动</div>
+  <div class="bn-item" data-mod="finance"><span class="i">💰</span>记账</div>
+  <div class="bn-item" data-mod="books"><span class="i">📚</span>读书</div>
+  <div class="bn-item" data-mod="mood"><span class="i">😊</span>心情</div>
+  <div class="bn-item" data-mod="english"><span class="i">🔤</span>英语</div>
+  <div class="bn-item" data-mod="dev"><span class="i">🎨</span>主题</div>
+  <div class="bn-item" data-mod="more"><span class="i">☰</span>更多</div>
+</nav>
+
+<!-- AI 浮窗 -->
+<button class="fab" id="fab" data-page-node-id="nXRI014kbC1zuTsJ1FNd1P">😊</button>
+<div class="ai-panel" id="aiPanel" data-page-node-id="mz9xGUUPsoIi9udOlyEzEN">
+  <h4 data-page-node-id="9QID9vfDMXGyoEm4CTRfdG">😊 智能输入</h4>
+  <div class="hint" data-page-node-id="rD5BEzNbxkxC98ZLYbrFBJ">用中文描述，自动写入对应模块。<br data-page-node-id="8GxOEmp6xz0m5wS3AMHGF7">例：“花了10块吃午饭”“跳绳30分钟”“心情不错”“背了20个单词”“吃了苹果150卡”</div>
+  <textarea id="aiInput" placeholder="说点什么…"></textarea>
+  <button class="btn purple" id="aiSend" style="width:100%;margin-top:10px" data-page-node-id="6YJBN2bzkkauMu7qOSCA9C">智能识别并保存</button>
+  <div class="ai-log" id="aiLog" data-page-node-id="GjpoPKN3XU2ghGlkELCACI"></div>
+</div>
+
+<!-- 周度分析弹窗 -->
+<div class="modal-mask" id="analysisModal" data-page-node-id="1PN28rvvEhpAn4Gtg6ysEm">
+  <div class="modal" data-page-node-id="MqXuFke6vTHkM6DXYYssG7">
+    <div class="mh" data-page-node-id="UfxzAfSf1pGgVpaCDmud4v"><h3 data-page-node-id="SuAsyFJArCubypAFACHqhC">📊 周度数据分析</h3><button class="x" id="analysisClose" data-page-node-id="XsU6hYMCK8rW7IA2sobDg7">✕</button></div>
+    <div class="mb" data-page-node-id="nOeQAbyhDDtEa5ND3ceBGx">
+      <div class="stat-grid" id="analysisStats" data-page-node-id="6YyheQ3MvCujUIQR4Gamjs"></div>
+      <div class="insight mt18" id="analysisInsight" data-page-node-id="uCAlrk2vkZquHGhKYAWfrm"></div>
+      <div class="mt18" id="analysisDetail" data-page-node-id="dshXnN2Yp0F3hS3eJYWp2P"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" data-page-node-id="3ZkEPolG567Vcuax5Um90y"></div>
+
+<script>
+/* ============ 数据层 ============ */
+const STORAGE_KEY = 'life_system_state_v1';
+const todayStr = () => new Date().toISOString().slice(0,10);
+const uid = () => Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
+function fmt(n){ n = Number(n)||0; return n.toLocaleString('zh-CN',{maximumFractionDigits:1}); }
+
+const DEFAULT_STATE = {
+  plan:{items:[]},
+  profile:{gender:'',mode:'',bf:'',weight:'',age:'',height:'',bmr:0,set:false},
+  diet:{goal:2000, items:[], quick:["鸡胸肉|165","米饭|230","鸡蛋|78","苹果|95","香蕉|105","牛奶|150","西兰花|55","面包|265","牛肉|250","酸奶|120"]},
+  exercise:{items:[]},
+  finance:{items:[]},
+  books:{items:[]},
+  mood:{items:[]},
+  english:{goal:20, words:[]},
+  theme:{mode:'light', colors:{}},
+  sync:{url:'', token:''}
+};
+function deepMerge(base, over){
+  const out = Array.isArray(base)?[]:{};
+  for(const k in base){ out[k] = (base[k] && typeof base[k]==='object' && !Array.isArray(base[k])) ? deepMerge(base[k], over?.[k]||{}) : (over && k in over ? over[k] : base[k]); }
+  return out;
+}
+let state = (()=>{ try{ const s=localStorage.getItem(STORAGE_KEY); return s? deepMerge(DEFAULT_STATE, JSON.parse(s)) : JSON.parse(JSON.stringify(DEFAULT_STATE)); }catch(e){ return JSON.parse(JSON.stringify(DEFAULT_STATE)); } })();
+
+function save(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if(document.getElementById('mod-home') && document.getElementById('mod-home').classList.contains('active')) renderHome();
+  if(state.sync && state.sync.url) cloudPushSilent();
+}
+
+/* ============ 工具 ============ */
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200); }
+function $(id){ return document.getElementById(id); }
+function esc(s){ return (s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function weekStart(d){ d=new Date(d); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); d.setHours(0,0,0,0); return d; }
+function weekDays(){ const s=weekStart(new Date()); const arr=[]; for(let i=0;i<7;i++){ const d=new Date(s); d.setDate(s.getDate()+i); arr.push(d.toISOString().slice(0,10)); } return arr; }
+function thisMonth(){ return new Date().toISOString().slice(0,7); }
+
+/* ============ 导航 ============ */
+const charts={};
+function switchMod(mod){
+  document.querySelectorAll('.module').forEach(m=>m.classList.remove('active'));
+  document.getElementById('mod-'+mod).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.mod===mod));
+  document.querySelectorAll('.bn-item').forEach(n=>n.classList.toggle('active', n.dataset.mod===mod));
+  if(mod==='home') renderHome();
+  if(mod==='diet'){ renderDietProfile(); renderDietChart(); }
+  if(mod==='finance') renderFinChart();
+  if(mod==='mood') renderMoodChart();
+  if(mod==='english') renderEnChart();
+  if(mod==='diet'||mod==='exercise'||mod==='english') setTimeout(()=>window.dispatchEvent(new Event('resize')),50);
+}
+document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',()=>{ switchMod(n.dataset.mod); closeDrawer(); }));
+document.querySelectorAll('.bn-item').forEach(n=>n.addEventListener('click',()=>{ if(n.dataset.mod==='more'){ openDrawer(); } else { switchMod(n.dataset.mod); closeDrawer(); } }));
+
+/* 手机抽屉 */
+function openDrawer(){ $('sidebar').classList.add('open'); $('overlay').classList.add('show'); }
+function closeDrawer(){ $('sidebar').classList.remove('open'); $('overlay').classList.remove('show'); }
+$('menuBtn') && $('menuBtn').addEventListener('click',openDrawer);
+$('overlay').addEventListener('click',closeDrawer);
+
+/* ============ 工作台首页 ============ */
+function renderHome(){
+  const d=new Date();
+  $('homeDate').textContent = d.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  const items=state.plan.items.filter(i=>i.date===todayStr());
+  const done=items.filter(i=>i.done).length;
+  const rate=items.length?Math.round(done/items.length*100):0;
+  const intake=state.diet.items.filter(i=>i.date===todayStr()).reduce((s,i)=>s+(+i.cal||0),0);
+  const left=state.diet.goal-intake;
+  const m=thisMonth();
+  const fin=state.finance.items.filter(i=>i.date.slice(0,7)===m);
+  const inc=fin.filter(i=>i.type==='income').reduce((s,i)=>s+(+i.amount||0),0);
+  const exp=fin.filter(i=>i.type==='expense').reduce((s,i)=>s+(+i.amount||0),0);
+  const bal=inc-exp;
+  const streak=calcStreak();
+  $('homeStats').innerHTML=`
+    <div class="stat"><div class="v" style="color:var(--c-purple)">${rate}%</div><div class="l">今日计划完成</div></div>
+    <div class="stat"><div class="v" style="color:${left<0?'var(--c-pink)':'var(--c-green)'}">${fmt(left)}</div><div class="l">饮食剩余(kcal)</div></div>
+    <div class="stat"><div class="v" style="color:var(--c-indigo)">${streak}</div><div class="l">运动连续(天)</div></div>
+    <div class="stat"><div class="v" style="color:var(--c-blue)">${fmt(bal)}</div><div class="l">本月结余(元)</div></div>`;
+  const todayMood=state.mood.items.find(i=>i.date===todayStr());
+  const cards=[
+    {mod:'plan',ico:'✅',name:'每日计划',v:`${done}/${items.length} 完成`},
+    {mod:'diet',ico:'🍱',name:'饮食记录',v:`剩 ${fmt(left)} kcal`},
+    {mod:'exercise',ico:'🏃',name:'运动打卡',v:`连续 ${streak} 天`},
+    {mod:'finance',ico:'💰',name:'记账存钱',v:`结余 ¥${fmt(bal)}`},
+    {mod:'books',ico:'📚',name:'读书收获',v:`在读 ${state.books.items.length} 本`},
+    {mod:'mood',ico:'😊',name:'心情记录',v:todayMood?MOODS.find(x=>x.e===todayMood.emoji)?.n:'未记录'},
+    {mod:'english',ico:'🔤',name:'英语',v:`累计 ${state.english.words.length} 词`},
+    {mod:'dev',ico:'🎨',name:'开发者',v:'主题配色'}
+  ];
+  $('homeCards').innerHTML=cards.map(c=>`<div class="home-card" data-mod="${c.mod}">
+    <div class="hc-ico">${c.ico}</div><div class="hc-name">${c.name}</div>
+    <div class="hc-v">${c.v}</div><div class="hc-go">进入 ›</div></div>`).join('');
+  $('homeCards').querySelectorAll('.home-card').forEach(el=>el.addEventListener('click',()=>switchMod(el.dataset.mod)));
+}
+$('homeAnalyze').addEventListener('click',openAnalysis);
+
+/* ============ 1. 每日计划 ============ */
+function renderPlan(){
+  const items = state.plan.items.filter(i=>i.date===todayStr());
+  const done = items.filter(i=>i.done).length;
+  const rate = items.length? Math.round(done/items.length*100):0;
+  $('planTotal').textContent=items.length;
+  $('planDone').textContent=done;
+  $('planRate').textContent=rate+'%';
+  $('planRing').innerHTML = ringSVG(rate, 'var(--c-purple)');
+  const order={high:0,mid:1,low:2};
+  const list = [...items].sort((a,b)=>order[a.prio]-order[b.prio]);
+  $('planList').innerHTML = list.length? list.map(i=>`
+    <div class="todo ${i.done?'done':''}" data-id="${i.id}">
+      <div class="chk" onclick="togglePlan('${i.id}')">${i.done?'✓':''}</div>
+      <div class="txt">${esc(i.text)}</div>
+      <div class="prio ${i.prio}">${i.prio==='high'?'高':i.prio==='mid'?'中':'低'}</div>
+      <div class="del" onclick="delPlan('${i.id}')">🗑</div>
+    </div>`).join('') : '<div class="empty">今天还没有任务，添加一个吧 ✨</div>';
+}
+function addPlan(){ const t=$('planText').value.trim(); if(!t){toast('请输入任务内容');return;} state.plan.items.push({id:uid(),text:t,prio:$('planPrio').value,done:false,date:todayStr()}); save(); $('planText').value=''; renderPlan(); toast('已添加任务'); }
+function togglePlan(id){ const i=state.plan.items.find(x=>x.id===id); if(i){i.done=!i.done; save(); renderPlan();} }
+function delPlan(id){ state.plan.items=state.plan.items.filter(x=>x.id!==id); save(); renderPlan(); }
+$('planAdd').addEventListener('click',addPlan);
+$('planText').addEventListener('keydown',e=>{if(e.key==='Enter')addPlan();});
+
+/* ============ 2. 饮食 ============ */
+let dietMeal='breakfast';
+const GENDER_PALETTES={
+  male:{'--c-purple':'#1c1c1e','--c-cyan':'#8e8e93','--c-indigo':'#48484a','--c-blue':'#636366','--c-green':'#8e8e93','--c-orange':'#aeaeb2','--c-pink':'#1c1c1e'},
+  female:{'--c-purple':'#ff69b4','--c-cyan':'#ffc2d1','--c-indigo':'#ff85a2','--c-blue':'#ff5c8d','--c-green':'#ff9eb5','--c-orange':'#ffb7c5','--c-pink':'#ff377f'}
+};
+function applyGenderPalette(gender){
+  if(gender && GENDER_PALETTES[gender]){
+    state.theme.colors={...GENDER_PALETTES[gender]};
+  } else {
+    state.theme.colors={};
+    document.documentElement.removeAttribute('style');
+  }
+  applyColors(); applyTheme(); renderColorGrid(); save();
+}
+function calcBMR(){
+  const p=state.profile;
+  if(p.mode==='bf'){
+    const w=+p.weight, bf=+p.bf;
+    if(!w || !bf) return 0;
+    const lbm=w*(1-bf/100);
+    return Math.round(370 + 21.6*lbm);
+  }
+  const a=+p.age, h=+p.height, w=+p.weight;
+  if(!p.gender || !a || !h || !w) return 0;
+  const v=10*w + 6.25*h - 5*a;
+  return Math.round(p.gender==='male'? v+5 : v-161);
+}
+function renderDietProfile(){
+  const p=state.profile, summary=$('dietProfileSummary'), main=$('dietMain');
+  if(!$('dpPanelGender')) return;
+  document.querySelectorAll('.gender-card').forEach(el=>el.classList.toggle('selected',el.dataset.g===p.gender));
+  document.querySelectorAll('.mode-card').forEach(el=>el.classList.toggle('selected',el.dataset.m===p.mode));
+  const panels={gender:$('dpPanelGender'),mode:$('dpPanelMode'),form:$('dpPanelForm')};
+  const steps={gender:$('dpStepGender'),mode:$('dpStepMode'),data:$('dpStepData')};
+  Object.values(panels).forEach(el=>el.classList.add('hidden'));
+  Object.values(steps).forEach(el=>el.classList.remove('active'));
+  if(p.set && p.bmr>0){
+    summary.classList.remove('hidden'); main.classList.remove('hidden');
+    const detail = p.mode==='bf'
+      ? `${p.gender==='male'?'男':'女'} · 体重 ${p.weight}kg · 体脂 ${p.bf}% · Katch-McArdle`
+      : `${p.gender==='male'?'男':'女'} · ${p.age}岁 · ${p.height}cm · ${p.weight}kg · Mifflin-St Jeor`;
+    summary.innerHTML = `<div class="profile-summary">
+      <div class="bmr-box"><div class="bmr-num">${p.bmr}</div><div class="bmr-label">每日基础代谢（BMR）千卡，已设为饮食目标</div></div>
+      <div style="flex:1;min-width:160px;">
+        <div class="bmr-meta">${detail}</div>
+        <button class="btn ghost sm" onclick="editDietProfile()" style="margin-top:8px">重新测算</button>
+      </div>
+    </div>`;
+    return;
+  }
+  summary.classList.add('hidden'); main.classList.add('hidden');
+  steps.gender.classList.add('active');
+  if(!p.gender){ panels.gender.classList.remove('hidden'); return; }
+  steps.mode.classList.add('active');
+  if(!p.mode){ panels.mode.classList.remove('hidden'); return; }
+  steps.data.classList.add('active');
+  panels.form.classList.remove('hidden');
+  $('dpBfForm').classList.toggle('hidden',p.mode!=='bf');
+  $('dpNoBfForm').classList.toggle('hidden',p.mode!=='noBf');
+  if(p.mode==='bf'){ $('dpBfWeight').value=p.weight||''; $('dpBfPercent').value=p.bf||''; }
+  else { $('dpAge').value=p.age||''; $('dpHeight').value=p.height||''; $('dpWeight').value=p.weight||''; }
+}
+function selectDietGender(g){
+  state.profile={gender:g,mode:'',bf:'',weight:'',age:'',height:'',bmr:0,set:false};
+  applyGenderPalette(g);
+  renderDietProfile();
+}
+function selectDietMode(m){ state.profile={...state.profile,mode:m,set:false}; renderDietProfile(); }
+function backDietProfile(step){
+  if(step==='gender'){ state.profile={gender:'',mode:'',bf:'',weight:'',age:'',height:'',bmr:0,set:false}; applyGenderPalette(''); }
+  else { state.profile={...state.profile,mode:'',set:false}; }
+  renderDietProfile();
+}
+function saveDietProfile(){
+  const p=state.profile;
+  let weight,bf,age,height;
+  if(p.mode==='bf'){
+    weight=+$('dpBfWeight').value; bf=+$('dpBfPercent').value;
+    if(!weight || !bf){ toast('请填写体重和体脂率'); return; }
+  } else {
+    age=+$('dpAge').value; height=+$('dpHeight').value; weight=+$('dpWeight').value;
+    if(!age || !height || !weight){ toast('请填写年龄、身高、体重'); return; }
+  }
+  state.profile={...state.profile,weight,bf:bf||'',age:age||'',height:height||'',set:true};
+  const bmr=calcBMR();
+  state.profile.bmr=bmr; state.diet.goal=bmr;
+  save();
+  renderDietProfile(); renderDiet(); renderHome(); renderDietChart();
+  toast(`已计算基础代谢：${bmr} kcal，已设为每日热量目标`);
+}
+function editDietProfile(){ state.profile={...state.profile,set:false,mode:''}; renderDietProfile(); }
+document.querySelectorAll('.gender-card').forEach(el=>el.addEventListener('click',()=>selectDietGender(el.dataset.g)));
+document.querySelectorAll('.mode-card').forEach(el=>el.addEventListener('click',()=>selectDietMode(el.dataset.m)));
+$('dietProfileBtn').addEventListener('click',saveDietProfile);
+
+function renderDiet(){
+  const items = state.diet.items.filter(i=>i.date===todayStr());
+  const intake = items.reduce((s,i)=>s+(+i.cal||0),0);
+  const goal = state.diet.goal;
+  const left = goal-intake;
+  $('dietIntake').textContent=fmt(intake);
+  $('dietGoal').textContent=fmt(goal);
+  $('dietLeft').textContent=fmt(left);
+  $('dietLeft').style.color = left<0?'var(--c-pink)':'var(--c-green)';
+  $('dietRing').innerHTML = ringSVG(Math.min(100, goal? intake/goal*100:0), left<0?'var(--c-pink)':'var(--c-orange)');
+  const list = items.filter(i=>i.meal===dietMeal);
+  $('dietList').innerHTML = list.length? list.map(i=>`
+    <div class="tx">
+      <div class="ci">🍽️</div>
+      <div class="info"><div class="t">${esc(i.name)}</div><div class="s">${mealName(i.meal)}</div></div>
+      <div class="amt exp">${fmt(i.cal)} kcal</div>
+      <div class="del" onclick="delDiet('${i.id}')">🗑</div>
+    </div>`).join('') : '<div class="empty">本餐还没记录～</div>';
+  $('dietQuick').innerHTML = state.diet.quick.map(q=>{ const [n,c]=q.split('|'); return `<span class="chip" onclick="quickDiet('${esc(n)}',${c||0})">${esc(n)} <span class="cal">${c||0}</span></span>`; }).join('');
+}
+function mealName(m){ return {breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'加餐'}[m]||m; }
+function addDiet(){ const n=$('dietName').value.trim(); const c=+$('dietCal').value; if(!n||!c){toast('请填写食物和卡路里');return;} state.diet.items.push({id:uid(),name:n,cal:c,meal:dietMeal,date:todayStr()}); save(); $('dietName').value=''; $('dietCal').value=''; renderDiet(); toast('已记录'); }
+function quickDiet(n,c){ state.diet.items.push({id:uid(),name:n,cal:+c,meal:dietMeal,date:todayStr()}); save(); renderDiet(); toast('已添加 '+n); }
+function delDiet(id){ state.diet.items=state.diet.items.filter(x=>x.id!==id); save(); renderDiet(); }
+$('dietAdd').addEventListener('click',addDiet);
+$('dietTabs').querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{ dietMeal=t.dataset.meal; $('dietTabs').querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active'); renderDiet(); }));
+function renderDietChart(){
+  const days=weekDays(); const data=days.map(d=>state.diet.items.filter(i=>i.date===d).reduce((s,i)=>s+(+i.cal||0),0));
+  const labels=days.map(d=>['一','二','三','四','五','六','日'][new Date(d).getDay()===0?6:new Date(d).getDay()-1]);
+  drawChart('dietChart','bar',{labels,datasets:[{label:'摄入(kcal)',data,backgroundColor:'rgba(255,149,0,.75)',borderRadius:8}]},{plugins:{legend:{display:false}}},'#ff9500');
+}
+
+/* ============ 3. 运动 ============ */
+const REGULAR_EX={跑步:9,游泳:10,骑车:7.5,跳绳:11,篮球:8,网球:7,羽毛球:6,慢走:3};
+const STRENGTH_PARTS={腿部:{met:8.2,rest:4},背部:{met:7.6,rest:2},胸部:{met:7.1,rest:3},肩部:{met:5.9,rest:2},手臂:{met:5.3,rest:2},核心:{met:5.0,rest:2},臀部:{met:7.4,rest:3}};
+const REPS_FACTOR={8:0.9,10:1.0,12:1.1};
+function ageFactor(age){ if(age<=30)return 1.00; if(age<=40)return 0.98; if(age<=50)return 0.95; return 0.92; }
+function isStrength(t){ return t in STRENGTH_PARTS; }
+function syncExUI(){
+  const t=$('exType').value, isS=isStrength(t);
+  $('exRegularFields').classList.toggle('hidden',isS);
+  $('exStrengthFields').classList.toggle('hidden',!isS);
+  if(isS){ const part=STRENGTH_PARTS[t]; $('exRest').placeholder=part.rest+' 分钟'; if(!$('exRest').value) $('exRest').value=part.rest; updateTotalSets(); }
+}
+function estimateRegular(){
+  const t=$('exType').value, min=+$('exMin').value;
+  if(!min){toast('请填写运动时长');return;}
+  const w=+state.profile.weight || 70;
+  const met=REGULAR_EX[t]||5;
+  const cal=Math.round(met * w * (min/60));
+  $('exRegCal').value=cal; toast(`估算消耗约 ${cal} kcal`);
+}
+function updateTotalSets(){
+  const actions=+$('exActions').value||0, per=+$('exSets').value||0;
+  $('exTotalSets').value = (actions&&per)? (actions*per)+' 组' : '';
+}
+function estimateStrength(){
+  const p=state.profile, t=$('exType').value;
+  if(!p.weight || !p.bf || !p.age){ toast('请前往【饮食记录】完善个人身体数据（体重、体脂率、年龄），才能估算力量训练消耗'); return; }
+  const part=STRENGTH_PARTS[t];
+  const actions=+$('exActions').value, per=+$('exSets').value, reps=+$('exReps').value, rest=+$('exRest').value;
+  if(!actions || !per || !rest){ toast('请填写动作数量、每组组数和组间间歇'); return; }
+  const totalSets = actions*per;
+  const lbm = (+p.weight) * (1 - (+p.bf)/100);
+  const totalMin = totalSets*0.5 + Math.max(0, totalSets-1)*rest;
+  const repsFactor = REPS_FACTOR[reps] || 1.0;
+  const aFactor = ageFactor(+p.age);
+  const cal = Math.round(part.met * lbm * (totalMin/60) * repsFactor * aFactor);
+  $('exStrCal').value=cal; toast(`本次${t}训练估算消耗 ${cal} kcal（总组数 ${totalSets}）`);
+}
+function renderEx(){
+  syncExUI();
+  const days=weekDays();
+  const weekItems=state.exercise.items.filter(i=>days.includes(i.date));
+  const streak=calcStreak();
+  $('exStreak').textContent=streak;
+  $('exWeek').textContent=weekItems.length;
+  $('exCal').textContent=fmt(weekItems.reduce((s,i)=>s+(+i.cal||0),0));
+  const dur=i=>i.duration||i.min||0;
+  const maxMin=Math.max(1,...days.map(d=>state.exercise.items.filter(i=>i.date===d).reduce((s,i)=>s+dur(i),0)));
+  $('exHeat').innerHTML = days.map(d=>{
+    const arr=state.exercise.items.filter(i=>i.date===d); const m=arr.reduce((s,i)=>s+dur(i),0);
+    const ratio=m/maxMin; const col = m===0?'var(--surface-2)':`color-mix(in srgb, var(--c-purple) ${20+ratio*80}%, var(--surface-2))`;
+    return `<div class="heat-cell ${m?'on':''}" style="background:${col}"><div class="d">${['一','二','三','四','五','六','日'][new Date(d).getDay()===0?6:new Date(d).getDay()-1]}</div><div class="v">${m?m+'分':'—'}</div></div>`;
+  }).join('');
+  const today=state.exercise.items.filter(i=>i.date===todayStr());
+  $('exList').innerHTML = today.length? today.slice().reverse().map(i=>`
+    <div class="tx float-up"><div class="ci">${i.category==='strength'?'🏋️':'🏃'}</div><div class="info"><div class="t">${esc(i.type)}</div><div class="s">${dur(i)} 分钟${i.category==='strength'?' · '+i.actions+'动作×'+i.perSets+'组='+i.sets+'组 · '+i.reps+'次/组':''}</div></div>
+    <div class="amt exp">${fmt(i.cal)} kcal</div><div class="del" onclick="delEx('${i.id}')">🗑</div></div>`).join('') : '<div class="empty">今天还没运动，去打卡吧 💪</div>';
+}
+function calcStreak(){
+  let streak=0; let d=new Date();
+  for(let i=0;i<400;i++){ const ds=d.toISOString().slice(0,10); if(state.exercise.items.some(x=>x.date===ds)){streak++; d.setDate(d.getDate()-1);} else if(i===0){ d.setDate(d.getDate()-1);} else break; }
+  return streak;
+}
+function addEx(){
+  const t=$('exType').value;
+  if(isStrength(t)){
+    const cal=+$('exStrCal').value;
+    const per=+$('exSets').value, rest=+$('exRest').value, reps=+$('exReps').value, actions=+$('exActions').value;
+    if(!actions || !per || !rest){toast('请填写力量训练详情');return;}
+    if(!cal){ toast('请先点击「自动估算」算出消耗，或手动输入'); return; }
+    const totalSets = actions*per;
+    const duration = Math.round(totalSets*0.5 + Math.max(0, totalSets-1)*rest);
+    state.exercise.items.push({id:uid(),type:t,category:'strength',duration,cal,sets:totalSets,perSets:per,actions,reps,rest,date:todayStr()});
+    $('exActions').value=''; $('exSets').value=''; $('exStrCal').value=''; $('exReps').value='10'; $('exRest').value=''; $('exTotalSets').value='';
+  } else {
+    const min=+$('exMin').value; if(!min){toast('请填写运动时长');return;}
+    let cal=+$('exRegCal').value; if(!cal){ cal=Math.round(min*(REGULAR_EX[t]||5)*( (+state.profile.weight)||70 )/60); }
+    state.exercise.items.push({id:uid(),type:t,category:'regular',duration:min,cal,date:todayStr()});
+    $('exMin').value=''; $('exRegCal').value='';
+  }
+  save(); renderEx(); renderHome(); $('exCard').classList.add('float-up'); setTimeout(()=>$('exCard').classList.remove('float-up'),600);
+  toast('打卡成功 🎉');
+}
+function delEx(id){ state.exercise.items=state.exercise.items.filter(x=>x.id!==id); save(); renderEx(); renderHome(); }
+$('exType').addEventListener('change',syncExUI);
+$('exActions').addEventListener('input',updateTotalSets);
+$('exSets').addEventListener('input',updateTotalSets);
+$('exRegEstimate').addEventListener('click',estimateRegular);
+$('exStrEstimate').addEventListener('click',estimateStrength);
+$('exAdd').addEventListener('click',addEx);
+
+/* ============ 4. 记账 ============ */
+const FIN_CATS={expense:['餐饮','交通','购物','娱乐','住房','医疗','教育','通讯','红包','其他'],income:['工资','理财','红包','其他']};
+let finType='expense', finCat='餐饮';
+function renderFinCats(){ $('finCats').innerHTML = FIN_CATS[finType].map(c=>`<span class="cat-pill ${c===finCat?'active':''}" data-cat="${c}">${c}</span>`).join('');
+  $('finCats').querySelectorAll('.cat-pill').forEach(p=>p.addEventListener('click',()=>{ finCat=p.dataset.cat; renderFinCats(); })); }
+function renderFin(){
+  const m=thisMonth();
+  const items=state.finance.items.filter(i=>i.date.slice(0,7)===m);
+  const inc=items.filter(i=>i.type==='income').reduce((s,i)=>s+(+i.amount||0),0);
+  const exp=items.filter(i=>i.type==='expense').reduce((s,i)=>s+(+i.amount||0),0);
+  $('finInc').textContent=fmt(inc); $('finExp').textContent=fmt(exp); $('finBal').textContent=fmt(inc-exp);
+  $('finList').innerHTML = items.length? items.slice().reverse().map(i=>`
+    <div class="tx"><div class="ci">${i.type==='income'?'💵':'💳'}</div>
+    <div class="info"><div class="t">${esc(i.category)}</div><div class="s">${esc(i.note||'')} · ${i.date.slice(5)}</div></div>
+    <div class="amt ${i.type==='income'?'inc':'exp'}">${i.type==='income'?'+':'-'}${fmt(i.amount)}</div>
+    <div class="del" onclick="delFin('${i.id}')">🗑</div></div>`).join('') : '<div class="empty">本月还没有记录～</div>';
+}
+function setFinType(t,c){ finType=t; finCat=c||FIN_CATS[t][0]; document.querySelectorAll('[data-ftype]').forEach(p=>p.classList.toggle('active',p.dataset.ftype===t)); renderFinCats(); }
+document.querySelectorAll('[data-ftype]').forEach(p=>p.addEventListener('click',()=>setFinType(p.dataset.ftype)));
+function addFin(){ const amt=+$('finAmt').value; if(!amt){toast('请输入金额');return;} state.finance.items.push({id:uid(),type:finType,category:finCat,amount:amt,note:$('finNote').value.trim(),date:todayStr()}); save(); $('finAmt').value=''; $('finNote').value=''; renderFin(); renderFinChart(); toast('已记账'); }
+function delFin(id){ state.finance.items=state.finance.items.filter(x=>x.id!==id); save(); renderFin(); renderFinChart(); }
+$('finAdd').addEventListener('click',addFin);
+function renderFinChart(){
+  const m=thisMonth();
+  const exp=state.finance.items.filter(i=>i.date.slice(0,7)===m && i.type==='expense');
+  const byCat={}; exp.forEach(i=>byCat[i.category]=(byCat[i.category]||0)+(+i.amount||0));
+  const labels=Object.keys(byCat); const data=Object.values(byCat);
+  const palette=['#af52de','#5ac8fa','#5856d6','#0071e3','#34c759','#ff9500','#ff375f','#ffcc00','#30b0c7','#ff6482'];
+  drawChart('finChart','doughnut',{labels,datasets:[{data,backgroundColor:labels.map((_,i)=>palette[i%palette.length]),borderWidth:0}]},{},null);
+}
+
+/* ============ 5. 读书 ============ */
+function renderBooks(){
+  $('bkList').innerHTML = state.books.items.length? state.books.items.slice().reverse().map(b=>{
+    const pct = b.totalPages? Math.min(100, Math.round(b.currentPage/b.totalPages*100)):0;
+    const notes=(b.notes||[]).slice().reverse();
+    return `<div class="book">
+      <div class="bh"><div><div class="bt">${esc(b.title)}</div><div class="ba">${esc(b.author||'未知作者')}</div></div>
+        <div class="gap10"><button class="btn sm ghost" onclick="updPages('${b.id}')">更新进度</button><button class="btn sm ghost" onclick="addNote('${b.id}')">笔记</button><button class="btn sm ghost" onclick="delBook('${b.id}')">删除</button></div></div>
+      <div class="bp">${b.currentPage||0} / ${b.totalPages||'?'} 页 · ${pct}%</div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      ${notes.length?notes.map(n=>`<div class="note"><div class="nm">P${n.page} · ${n.date}</div>${esc(n.text)}</div>`).join(''):''}
+    </div>`;
+  }).join('') : '<div class="empty">还没有书，添加一本开始阅读吧 📖</div>';
+}
+function addBook(){ const t=$('bkTitle').value.trim(); const p=+$('bkPages').value; if(!t){toast('请输入书名');return;} state.books.items.push({id:uid(),title:t,author:$('bkAuthor').value.trim(),totalPages:p||0,currentPage:0,notes:[]}); save(); $('bkTitle').value=''; $('bkAuthor').value=''; $('bkPages').value=''; renderBooks(); toast('已添加书籍'); }
+function updPages(id){ const b=state.books.items.find(x=>x.id===id); if(!b)return; const v=prompt('已读到第几页？',b.currentPage||0); if(v===null)return; b.currentPage=Math.max(0,+v||0); save(); renderBooks(); }
+function addNote(id){ const b=state.books.items.find(x=>x.id===id); if(!b)return; const pg=prompt('笔记所在页码？',b.currentPage||0); if(pg===null)return; const tx=prompt('写下你的收获：'); if(tx===null)return; b.notes=b.notes||[]; b.notes.push({page:pg||0,text:tx,date:todayStr()}); save(); renderBooks(); }
+function delBook(id){ if(!confirm('确定删除这本书？'))return; state.books.items=state.books.items.filter(x=>x.id!==id); save(); renderBooks(); }
+$('bkAdd').addEventListener('click',addBook);
+
+/* ============ 6. 心情 ============ */
+const MOODS=[{e:'😄',n:'开心',s:5},{e:'🙂',n:'不错',s:4},{e:'😐',n:'一般',s:3},{e:'😟',n:'难过',s:2},{e:'😡',n:'生气',s:1},{e:'😴',n:'疲惫',s:2}];
+let moodSel=null;
+function renderMoodPick(){ $('moodPick').innerHTML = MOODS.map(m=>`<div class="mood ${moodSel===m.e?'active':''}" data-e="${m.e}" title="${m.n}">${m.e}</div>`).join('');
+  $('moodPick').querySelectorAll('.mood').forEach(el=>el.addEventListener('click',()=>{ moodSel=el.dataset.e; renderMoodPick(); })); }
+function renderMood(){
+  const items=state.mood.items.slice().reverse().slice(0,15);
+  $('moodList').innerHTML = items.length? items.map(i=>`
+    <div class="tx"><div class="ci" style="font-size:20px">${i.emoji}</div>
+    <div class="info"><div class="t">${MOODS.find(m=>m.e===i.emoji)?.n||''} ${esc(i.text||'')}</div><div class="s">${i.date}</div></div>
+    <div class="del" onclick="delMood('${i.id}')">🗑</div></div>`).join('') : '<div class="empty">还没有心情记录～</div>';
+}
+function saveMood(){ if(!moodSel){toast('请先选择一个心情');return;} const today=todayStr(); const ex=state.mood.items.find(i=>i.date===today);
+  if(ex){ ex.emoji=moodSel; ex.text=$('moodText').value.trim(); } else { state.mood.items.push({id:uid(),emoji:moodSel,text:$('moodText').value.trim(),date:today}); }
+  save(); $('moodText').value=''; moodSel=null; renderMoodPick(); renderMood(); renderMoodChart(); toast('心情已保存'); }
+function delMood(id){ state.mood.items=state.mood.items.filter(x=>x.id!==id); save(); renderMood(); renderMoodChart(); }
+$('moodSave').addEventListener('click',saveMood);
+function renderMoodChart(){
+  const days=weekDays(); const labels=days.map(d=>['一','二','三','四','五','六','日'][new Date(d).getDay()===0?6:new Date(d).getDay()-1]);
+  const data=days.map(d=>{ const arr=state.mood.items.filter(i=>i.date===d); if(!arr.length)return null; const last=arr[arr.length-1]; return MOODS.find(m=>m.e===last.emoji)?.s??3; });
+  drawChart('moodChart','line',{labels,datasets:[{label:'心情指数',data,spanGaps:true,borderColor:'#af52de',backgroundColor:'rgba(175,82,222,.12)',fill:true,tension:.35,pointBackgroundColor:'#af52de',pointRadius:5}]},{},'#af52de');
+}
+
+/* ============ 7. 英语 ============ */
+function renderEnglish(){
+  const words=state.english.words;
+  const today=words.filter(w=>w.learnedDate===todayStr()).length;
+  const rev=words.filter(w=>w.reviewDate && w.reviewDate<=todayStr() && !w.mastered).length;
+  $('enTotal').textContent=words.length;
+  $('enToday').textContent=today;
+  $('enRev').textContent=rev;
+  $('enGoalTxt').textContent='每日目标：'+state.english.goal+' 个';
+  $('enCards').innerHTML = words.length? words.slice().reverse().map(w=>{
+    const needRev = w.reviewDate && w.reviewDate<=todayStr() && !w.mastered;
+    return `<div class="flashcard" onclick="this.classList.toggle('flipped')">
+      <div class="inner"><div class="face front"><span class="tag ${w.mastered?'new':'rev'}">${w.mastered?'已掌握':'待复习'}</span><div class="w">${esc(w.word)}</div><div class="m">点击查看释义</div></div>
+      <div class="face back"><div class="w" style="font-size:15px">${esc(w.word)}</div><div class="m">${esc(w.meaning)}</div></div></div></div>`;
+  }).join('') : '<div class="empty">还没有单词，添加一个开始学习 🔤</div>';
+}
+function addWord(){ const w=$('enWord').value.trim(); const m=$('enMean').value.trim(); if(!w||!m){toast('请填写单词和释义');return;}
+  state.english.words.push({id:uid(),word:w,meaning:m,learnedDate:todayStr(),reviewDate:plusDays(todayStr(),1),mastered:false}); save(); $('enWord').value=''; $('enMean').value=''; renderEnglish(); toast('已添加单词'); }
+function plusDays(str,n){ const d=new Date(str); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function setGoal(){ const g=+$('enGoal').value; if(g){state.english.goal=g; save(); renderEnglish(); toast('目标已设定');} }
+$('enAdd').addEventListener('click',addWord);
+$('enGoalSet').addEventListener('click',setGoal);
+function renderEnChart(){
+  const days=weekDays(); const labels=days.map(d=>['一','二','三','四','五','六','日'][new Date(d).getDay()===0?6:new Date(d).getDay()-1]);
+  const data=days.map(d=>state.english.words.filter(w=>w.learnedDate===d).length);
+  drawChart('enChart','bar',{labels,datasets:[{label:'新增单词',data,backgroundColor:'rgba(88,86,214,.78)',borderRadius:8}]},{plugins:{legend:{display:false}}},'#5856d6');
+}
+
+/* ============ 图表 ============ */
+function drawChart(id,type,data,opts,color){
+  const cv=$(id); if(!cv)return;
+  if(charts[id]) charts[id].destroy();
+  const ctx=cv.getContext('2d');
+  const gridColor=getComputedStyle(document.documentElement).getPropertyValue('--border').trim()||'#e8e8ed';
+  const tickColor=getComputedStyle(document.documentElement).getPropertyValue('--text-2').trim()||'#6e6e73';
+  charts[id]=new Chart(ctx,{type,data,options:Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tickColor}}}},opts,{
+    scales: (type==='bar'||type==='line') ? {x:{grid:{color:gridColor,display:false},ticks:{color:tickColor}},y:{grid:{color:gridColor},ticks:{color:tickColor},beginAtZero:true}} : {}
+  })});
+}
+
+/* ============ 圆环 ============ */
+function ringSVG(pct,color){
+  pct=Math.max(0,Math.min(100,pct||0)); const r=58,c=2*Math.PI*r; const off=c*(1-pct/100);
+  return `<svg width="140" height="140" viewBox="0 0 140 140">
+    <circle cx="70" cy="70" r="${r}" fill="none" stroke="var(--border)" stroke-width="12"/>
+    <circle cx="70" cy="70" r="${r}" fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}" style="transition:stroke-dashoffset .5s"/>
+  </svg><div class="mid"><div class="p">${pct}%</div><div class="s">完成度</div></div>`;
+}
+
+/* ============ AI 智能输入 ============ */
+$('fab').addEventListener('click',()=>{ $('aiPanel').classList.toggle('show'); });
+function aiLog(msg,ok){ const el=$('aiLog'); const d=document.createElement('div'); d.className='e '+(ok?'ok':'err'); d.textContent=msg; el.prepend(d); }
+function sendAI(){
+  const raw=$('aiInput').value.trim(); if(!raw){toast('请先输入内容');return;}
+  const r=parseAI(raw);
+  if(r.ok){ aiLog('✓ '+r.msg,true); $('aiInput').value=''; }
+  else aiLog('✗ '+r.msg,false);
+}
+$('aiSend').addEventListener('click',sendAI);
+
+function parseAI(text){
+  const t=text;
+  const num=()=>{ const m=t.match(/(\d+(?:\.\d+)?)/); return m?parseFloat(m[1]):0; };
+  const has=(...kw)=>kw.some(k=>t.includes(k));
+  // 记账
+  if(has('花','费','支出','消费','买','付','块','元','￥','$','收入','工资','赚','进账','红包','理财')){
+    const amt=num(); if(!amt) return {ok:false,msg:'没识别到金额：'+text};
+    const income=has('收入','工资','赚','进账','理财收益');
+    let cat;
+    if(income){ cat = has('工资','薪')?'工资':has('理财')?'理财':has('红包')?'红包':'其他'; }
+    else { cat = has('吃','饭','餐','食','喝','水果','菜')?'餐饮':has('车','地铁','公交','打车','油','高铁','机票')?'交通':has('衣','购','买')?'购物':has('电影','游戏','玩','娱乐')?'娱乐':has('房租','水电','物业','住')?'住房':has('药','医','医院','病')?'医疗':has('书','课','学','培训')?'教育':has('话费','流量','通讯')?'通讯':has('红包')?'红包':'其他'; }
+    state.finance.items.push({id:uid(),type:income?'income':'expense',category:cat,amount:amt,note:t,date:todayStr()});
+    save(); renderFin(); renderFinChart();
+    return {ok:true,msg:`记账：${income?'收入':'支出'} ${cat} ${amt}元`};
+  }
+  // 运动
+  if(has('跑步','游泳','骑车','骑行','瑜伽','篮球','跳绳','散步','走路','步行','羽毛球','网球','运动','打卡')){
+    let type=null;
+    if(has('跑步'))type='跑步';else if(has('游泳'))type='游泳';else if(has('骑车')||has('骑行'))type='骑车';else if(has('瑜伽'))type='瑜伽';else if(has('篮球'))type='篮球';else if(has('跳绳'))type='跳绳';else if(has('散步')||has('走路')||has('步行')||has('慢走'))type='慢走';else if(has('羽毛球'))type='羽毛球';else if(has('网球'))type='网球';else type='跑步';
+    let min=num(); if(!min){ if(has('半小时'))min=30; else if(has('一小时')||has('1小时'))min=60; else min=30; }
+    let cal=0; const m2=t.match(/(\d+(?:\.\d+)?)\s*(?:卡|大卡|千卡|kcal|KCAL)/i); if(m2)cal=parseFloat(m2[1]); else cal=Math.round(min*(REGULAR_EX[type]||5)*(+state.profile.weight||70)/60);
+    state.exercise.items.push({id:uid(),type,category:'regular',duration:min,cal,date:todayStr()}); save(); renderEx(); renderHome();
+    return {ok:true,msg:`运动打卡：${type} ${min}分钟 / ${cal}kcal`};
+  }
+  // 饮食
+  if(has('吃','早餐','午餐','晚餐','宵夜','加餐','食物','卡','大卡','卡路里','摄入')){
+    let meal='snack';
+    if(has('早'))meal='breakfast'; else if(has('午')||has('中'))meal='lunch'; else if(has('晚'))meal='dinner'; else if(has('夜')||has('宵'))meal='snack';
+    else { const h=new Date().getHours(); meal=h<11?'breakfast':h<14?'lunch':h<17?'snack':'dinner'; }
+    const calM=t.match(/(\d+(?:\.\d+)?)\s*(?:卡|大卡|千卡|kcal|KCAL)/i); let cal=calM?parseFloat(calM[1]):0;
+    const clean=t.replace(/(吃了|喝了|吃|喝|早餐|午餐|晚餐|加餐|记录|摄入)/g,'');
+    const nameM=clean.replace(/[^一-龥a-zA-Z]/g,' ').trim().split(/\s+/).filter(w=>w.length>=2 && !['卡路','大卡','千卡'].includes(w))[0];
+    const name=nameM||'食物';
+    if(!cal){ // 尝试从高頻库匹配
+      const q=state.diet.quick.find(x=>t.includes(x.split('|')[0])); if(q){const[n,c]=q.split('|'); cal=+c; }
+    }
+    if(!cal) cal=200;
+    state.diet.items.push({id:uid(),name,cal,meal,date:todayStr()}); save(); dietMeal=meal; $('dietTabs').querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.meal===meal)); renderDiet(); renderDietChart();
+    return {ok:true,msg:`饮食记录：${mealName(meal)} ${name} ${cal}kcal`};
+  }
+  // 英语
+  if(has('单词','背','英语','记单词','学英语','词汇')){
+    const cnt=num();
+    if(cnt){ for(let i=0;i<Math.min(cnt,50);i++){ state.english.words.push({id:uid(),word:'单词'+(state.english.words.length+1),meaning:'(请前往英语模块补释义)',learnedDate:todayStr(),reviewDate:plusDays(todayStr(),1),mastered:false}); }
+      save(); renderEnglish(); renderEnChart(); return {ok:true,msg:`英语：记录了 ${cnt} 个单词（请到英语模块补充释义）`}; }
+    else { // 形如 "苹果 apple 水果" 可解析
+      const parts=t.split(/[\s,，]+/).filter(Boolean);
+      if(parts.length>=2 && !has('背','学习','新增')){ const w=parts[0]; const mean=parts.slice(1).join(' '); state.english.words.push({id:uid(),word:w,meaning:mean,learnedDate:todayStr(),reviewDate:plusDays(todayStr(),1),mastered:false}); save(); renderEnglish(); renderEnChart(); return {ok:true,msg:`英语：添加 ${w} -> ${mean}`}; }
+      return {ok:false,msg:'没识别到数量或单词：'+text};
+    }
+  }
+  // 心情
+  if(has('心情','开心','高兴','快乐','不错','还行','一般','难过','伤心','低落','生气','愤怒','烦躁','疲惫','累','困','平静')){
+    let e=null;
+    if(has('开心','高兴','快乐','棒','好'))e='😄'; else if(has('不错','还行','好'))e='🙂'; else if(has('一般','平静','普通'))e='😐'; else if(has('难过','伤心','低落'))e='😟'; else if(has('生气','愤怒','烦躁'))e='😡'; else if(has('疲惫','累','困'))e='😴'; else e='🙂';
+    const today=todayStr(); const ex=state.mood.items.find(i=>i.date===today);
+    const txt=t.replace(/[。.!！？?，,]/g,' ');
+    if(ex){ex.emoji=e;ex.text=txt;} else state.mood.items.push({id:uid(),emoji:e,text:txt,date:today});
+    save(); moodSel=e; renderMoodPick(); renderMood(); renderMoodChart();
+    return {ok:true,msg:`心情记录：${MOODS.find(m=>m.e===e)?.n}`};
+  }
+  // 计划
+  if(has('计划','待办','要做','完成','todo','任务')){
+    const txt=t.replace(/^(添加|计划|待办|我要|今天)?/,'');
+    state.plan.items.push({id:uid(),text:txt||t,prio:'mid',done:false,date:todayStr()}); save(); renderPlan();
+    return {ok:true,msg:`计划：添加「${txt||t}」`};
+  }
+  return {ok:false,msg:'无法识别，请换个说法，例如“花了10块”“跳绳30分钟”“心情不错”'};
+}
+
+/* ============ 周度分析 ============ */
+$('analysisBtn').addEventListener('click',openAnalysis);
+$('analysisClose').addEventListener('click',()=>$('analysisModal').classList.remove('show'));
+$('analysisModal').addEventListener('click',e=>{ if(e.target===$('analysisModal')) $('analysisModal').classList.remove('show'); });
+function openAnalysis(){
+  const days=weekDays();
+  const dietDays=days.map(d=>state.diet.items.filter(i=>i.date===d).reduce((s,i)=>s+(+i.cal||0),0));
+  const dietAvg=Math.round(dietDays.reduce((a,b)=>a+b,0)/7);
+  const exItems=state.exercise.items.filter(i=>days.includes(i.date));
+  const finExp=state.finance.items.filter(i=>days.includes(i.date)&&i.type==='expense').reduce((s,i)=>s+(+i.amount||0),0);
+  const finInc=state.finance.items.filter(i=>days.includes(i.date)&&i.type==='income').reduce((s,i)=>s+(+i.amount||0),0);
+  const enCount=state.english.words.filter(w=>days.includes(w.learnedDate)).length;
+  const planDone=state.plan.items.filter(i=>i.date===todayStr()&&i.done).length;
+  const planTotal=state.plan.items.filter(i=>i.date===todayStr()).length;
+  $('analysisStats').innerHTML=`
+    <div class="stat"><div class="v" style="color:var(--c-orange)">${dietAvg}</div><div class="l">日均摄入(kcal)</div></div>
+    <div class="stat"><div class="v" style="color:var(--c-purple)">${exItems.length}</div><div class="l">运动打卡(次)</div></div>
+    <div class="stat"><div class="v" style="color:var(--c-green)">${fmt(finInc-finExp)}</div><div class="l">周净收支(元)</div></div>
+    <div class="stat"><div class="v" style="color:var(--c-indigo)">${enCount}</div><div class="l">学习单词(个)</div></div>`;
+  // 洞察
+  const ins=[];
+  if(exItems.length>=5) ins.push('🏃 本周运动 <b>'+exItems.length+' 次</b>，已超平均水平，保持节奏很棒！');
+  else if(exItems.length>=3) ins.push('🏃 本周运动 <b>'+exItems.length+' 次</b>，建议增加到 5 次让身体更强韧。');
+  else ins.push('🏃 本周仅运动 <b>'+exItems.length+' 次</b>，试着每天抽出 20 分钟动一动吧。');
+  const overDays=dietDays.filter(d=>d>state.diet.goal).length;
+  if(overDays===0) ins.push('🍱 本周 <b>0 天</b>热量超标，饮食控制得很好！');
+  else ins.push('🍱 本周有 <b>'+overDays+' 天</b>热量超过目标，注意晚餐与加餐。');
+  if(finInc-finExp<0) ins.push('💰 本周收支为 <b>负</b>，留意非必要支出，可设个存钱小目标。');
+  else ins.push('💰 本周净结余 <b>'+fmt(finInc-finExp)+' 元</b>，储蓄习惯正在养成 💪');
+  if(enCount>=state.english.goal*5) ins.push('🔤 英语本周累计 <b>'+enCount+' 词</b>，稳稳达成目标。');
+  else ins.push('🔤 英语本周 <b>'+enCount+' 词</b>，距离目标还有差距，每天坚持背一点。');
+  const todayMood=state.mood.items.find(i=>i.date===todayStr());
+  ins.push(todayMood? '😊 今天的心情是「'+(MOODS.find(m=>m.e===todayMood.emoji)?.n||'')+'」，记得好好照顾自己。' : '😊 今天还没记录心情，花一分钟问问自己感觉如何。');
+  if(planTotal) ins.push('✅ 今日计划完成 <b>'+planDone+'/'+planTotal+'</b>'+(planDone===planTotal?'，全部搞定，太强了！':'，还剩 '+(planTotal-planDone)+' 项，加油！'));
+  $('analysisInsight').innerHTML = '💡 <b>AI 洞察与建议</b><br>' + ins.map(i=>'• '+i).join('<br>');
+  $('analysisDetail').innerHTML = `
+    <div class="card" style="margin:0"><div class="flex-between"><div style="font-weight:700">📋 模块明细</div></div>
+    <div class="mini mt10" style="line-height:1.9">
+    • 饮食：日均 ${dietAvg} kcal，目标 ${state.diet.goal}，超标 ${overDays} 天<br>
+    • 运动：本周 ${exItems.length} 次，消耗 ${fmt(exItems.reduce((s,i)=>s+(+i.cal||0),0))} kcal，连续 ${calcStreak()} 天<br>
+    • 记账：周支出 ${fmt(finExp)} 元 / 收入 ${fmt(finInc)} 元<br>
+    • 英语：本周学 ${enCount} 词，待复习 ${state.english.words.filter(w=>w.reviewDate&&w.reviewDate<=todayStr()&&!w.mastered).length} 词<br>
+    • 读书：在读书籍 ${state.books.items.length} 本<br>
+    • 心情：本周记录 ${state.mood.items.filter(i=>days.includes(i.date)).length} 天
+    </div></div>`;
+  $('analysisModal').classList.add('show');
+}
+
+/* ============ 开发者：配色 ============ */
+const COLOR_DEFS=[
+  {k:'--c-purple',n:'品牌紫'},
+  {k:'--c-cyan',n:'品牌青'},
+  {k:'--c-indigo',n:'品牌靛蓝'},
+  {k:'--c-blue',n:'功能蓝'},
+  {k:'--c-green',n:'功能绿'},
+  {k:'--c-orange',n:'功能橙'},
+  {k:'--c-pink',n:'功能粉'},
+  {k:'--bg',n:'页面背景'},
+  {k:'--surface',n:'卡片底色'},
+  {k:'--text',n:'主文字'},
+  {k:'--text-2',n:'次要文字'},
+  {k:'--border',n:'描边/分割'}
+];
+function applyColors(){
+  for(const k in (state.theme.colors||{})){ document.documentElement.style.setProperty(k, state.theme.colors[k]); }
+  document.documentElement.setAttribute('data-gender', state.profile.gender || '');
+  const meta=document.querySelector('meta[name=theme-color]');
+  if(meta){ meta.content = (state.profile.gender && GENDER_PALETTES[state.profile.gender]) ? GENDER_PALETTES[state.profile.gender]['--c-purple'] : '#af52de'; }
+}
+function renderColorGrid(){
+  $('colorGrid').innerHTML = COLOR_DEFS.map(d=>{
+    const val=getComputedStyle(document.documentElement).getPropertyValue(d.k).trim()||'#000';
+    return `<div class="color-item"><div class="sw" style="background:${val}"></div><label>${d.n}</label>
+      <input type="color" value="${toHex(val)}" data-k="${d.k}"></div>`;
+  }).join('');
+  $('colorGrid').querySelectorAll('input[type=color]').forEach(inp=>inp.addEventListener('input',()=>{
+    const k=inp.dataset.k, v=inp.value;
+    document.documentElement.style.setProperty(k,v);
+    state.theme.colors[k]=v;
+    inp.previousElementSibling.previousElementSibling.style.background=v;
+  }));
+  $('colorGrid').querySelectorAll('input[type=color]').forEach(inp=>inp.addEventListener('change',()=>{ save(); }));
+}
+function toHex(v){ if(v.startsWith('#')) return v.length===4? '#'+[...v.slice(1)].map(c=>c+c).join('') : v.slice(0,7); return '#af52de'; }
+function applyTheme(){ document.documentElement.setAttribute('data-theme', state.theme.mode); $('themeToggle').textContent = state.theme.mode==='dark'?'☀️ 切换亮色':'🌙 切换暗色'; }
+$('themeToggle').addEventListener('click',()=>{ state.theme.mode = state.theme.mode==='dark'?'light':'dark'; applyTheme(); save(); renderAll(); });
+$('resetColor').addEventListener('click',()=>{
+  if(state.profile.gender && GENDER_PALETTES[state.profile.gender]){
+    state.theme.colors={...GENDER_PALETTES[state.profile.gender]};
+  } else {
+    state.theme.colors={};
+    document.documentElement.removeAttribute('style');
+  }
+  applyColors(); applyTheme(); save(); renderColorGrid(); renderAll(); toast('已恢复默认配色');
+});
+
+/* 导出/导入 */
+$('exportBtn').addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='人生管理系统备份_'+todayStr()+'.json'; a.click(); toast('已导出备份');
+});
+$('importBtn').addEventListener('click',()=>$('importFile').click());
+$('importFile').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f)return; const rd=new FileReader();
+  rd.onload=()=>{ try{ const d=JSON.parse(rd.result); state=deepMerge(DEFAULT_STATE,d); save(); applyColors(); applyTheme(); renderAll(); toast('导入成功'); }catch(err){ toast('文件格式错误'); } };
+  rd.readAsText(f);
+});
+
+/* 云端同步 */
+$('syncSave').addEventListener('click',()=>{ state.sync={url:$('syncUrl').value.trim(),token:$('syncToken').value.trim()}; save(); toast('同步设置已保存'); });
+$('syncPush').addEventListener('click',()=>cloudPush(true));
+$('syncPull').addEventListener('click',()=>cloudPull());
+function cloudHeaders(){ const h={'Content-Type':'application/json'}; if(state.sync.token) h['Authorization']=state.sync.token.startsWith('Bearer')?state.sync.token:('Bearer '+state.sync.token); return h; }
+async function cloudPush(notify){
+  if(!state.sync.url){ if(notify)toast('请先填写同步地址'); return; }
+  try{ const r=await fetch(state.sync.url,{method:'PUT',headers:cloudHeaders(),body:JSON.stringify(state)}); if(!r.ok)throw 0; if(notify)toast('已上传到云端'); }
+  catch(e){ if(notify)toast('上传失败，检查地址/网络'); }
+}
+function cloudPushSilent(){ cloudPush(false); }
+async function cloudPull(){
+  if(!state.sync.url){ toast('请先填写同步地址'); return; }
+  try{ const r=await fetch(state.sync.url,{headers:cloudHeaders()}); if(!r.ok)throw 0; const d=await r.json(); state=deepMerge(DEFAULT_STATE,d); save(); applyColors(); applyTheme(); renderAll(); toast('已从云端拉取'); }
+  catch(e){ toast('拉取失败'); }
+}
+function initSyncInputs(){ $('syncUrl').value=state.sync.url||''; $('syncToken').value=state.sync.token||''; }
+
+/* 安装到桌面（PWA） */
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredPrompt=e; $('installBtn').classList.remove('hidden'); });
+window.addEventListener('appinstalled',()=>{ $('installBtn').classList.add('hidden'); deferredPrompt=null; toast('已部署到桌面 🎉'); });
+$('installBtn').addEventListener('click',async()=>{
+  if(deferredPrompt){ deferredPrompt.prompt(); const {outcome}=await deferredPrompt.userChoice; if(outcome==='accepted'){ $('installBtn').classList.add('hidden'); toast('已添加到桌面'); } deferredPrompt=null; }
+  else { toast('iPhone：Safari 分享 → 添加到主屏幕；安卓：菜单 → 安装应用'); }
+});
+if(window.matchMedia('(display-mode: standalone)').matches){ $('installBtn').classList.add('hidden'); }
+
+/* 全局点击反馈：轻微震动 + 按钮动画 */
+function buttonFeedback(el){
+  if(!el) return;
+  el.classList.add('click-anim'); setTimeout(()=>el.classList.remove('click-anim'),350);
+  if('vibrate' in navigator){ try{ navigator.vibrate(18); }catch(e){} }
+}
+document.addEventListener('click',e=>{
+  const btn = e.target.closest('.btn,.home-card,.nav-item,.bn-item,.install-btn,.analysis-btn,.gender-card,.mode-card');
+  if(btn) buttonFeedback(btn);
+},true);
+
+/* ============ 初始化 ============ */
+function renderAll(){
+  renderHome(); renderPlan(); renderDietProfile(); renderDiet(); renderEx(); renderFinCats(); renderFin(); renderBooks();
+  renderMoodPick(); renderMood(); renderEnglish(); renderColorGrid();
+  applyColors(); applyTheme(); initSyncInputs();
+  $('enGoal').value=state.english.goal;
+}
+renderAll();
+
+/* 注册 Service Worker：支持离线打开、秒开，便于"添加到主屏幕"后像 App 使用 */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
