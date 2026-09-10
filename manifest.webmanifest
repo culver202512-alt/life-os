@@ -1,0 +1,15 @@
+{
+  "name": "人生管理系统",
+  "short_name": "人生管理",
+  "description": "每日计划、饮食、运动、记账、读书、心情、英语一站式人生管理工作台",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f5f7",
+  "theme_color": "#af52de",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
