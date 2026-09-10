@@ -481,6 +481,35 @@ a.link{color:var(--c-blue);cursor:pointer;font-weight:600;}
 .cb-tip{font-size:12px;color:#aaa;margin-top:12px}
 .cb-bar{position:fixed;top:10px;right:10px;z-index:9000;display:none;align-items:center;gap:8px;background:rgba(255,255,255,.92);border:1px solid #ececf0;border-radius:999px;padding:6px 8px 6px 12px;box-shadow:0 4px 14px rgba(0,0,0,.08);font-size:13px}
 .cb-logout{border:none;background:#ff3b30;color:#fff;border-radius:999px;padding:5px 12px;font-size:12px;cursor:pointer}
+
+/* ============ 创作笔记模块 ============ */
+.note-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;scrollbar-width:none}
+.note-tabs::-webkit-scrollbar{display:none}
+.note-tab{flex:0 0 auto;padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:13px;cursor:pointer;white-space:nowrap}
+.note-tab.active{background:var(--c-purple);color:#fff;border-color:var(--c-purple)}
+.note-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px;transition:.2s;position:relative}
+.note-card.pinned{border-left:4px solid var(--c-purple)}
+.note-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.note-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.note-title{font-weight:700;font-size:15px;color:var(--text);line-height:1.3}
+.note-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px;font-size:12px;color:var(--text-2)}
+.note-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:600;background:var(--surface-2);color:var(--text-2)}
+.note-badge.draft{background:#e3f2fd;color:#1565c0}
+.note-badge.knowledge{background:#f3e5f5;color:#6a1b9a}
+.note-badge.note{background:#e8f5e9;color:#2e7d32}
+.note-badge.summary{background:#fff3e0;color:#ef6c00}
+.note-badge.status-ready{background:#fff8e1;color:#f57f17}
+.note-badge.status-published{background:#e0f2f1;color:#00695c}
+.note-snippet{font-size:13px;color:var(--text-2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.note-actions{display:flex;gap:8px;margin-top:12px}
+.note-actions button{border:none;background:transparent;color:var(--text-2);font-size:12px;cursor:pointer;padding:4px 8px;border-radius:6px}
+.note-actions button:hover{background:var(--surface-2);color:var(--c-purple)}
+.note-editor-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.note-editor-row .field{flex:1;min-width:140px}
+#noteContent{width:100%;min-height:180px;resize:vertical}
+.note-empty{text-align:center;padding:40px 20px;color:var(--text-2)}
+.note-empty .i{font-size:36px;margin-bottom:10px;display:block}
+.note-search{width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:14px;margin-bottom:12px}
 </style>
 
 <!-- 侧边栏 -->
@@ -496,6 +525,7 @@ a.link{color:var(--c-blue);cursor:pointer;font-weight:600;}
   <div class="nav-item" data-mod="exercise" data-page-node-id="SmDcjmzTsuXA7o5GYUJCbI"><span class="ico" data-page-node-id="rUoCiiDeZNM4SFgNcJOgtC">🏃</span>运动打卡</div>
   <div class="nav-item" data-mod="finance" data-page-node-id="SSHEfWcR5du1L8NEGUGWoL"><span class="ico" data-page-node-id="90L6wBBgG7PLTarr8keTS4">💰</span>记账存钱</div>
   <div class="nav-item" data-mod="books" data-page-node-id="9nWLZLZYVaMZaz52MyDvnl"><span class="ico" data-page-node-id="L1H045mf89xdvE3kMmx5ae">📚</span>读书收获</div>
+  <div class="nav-item" data-mod="notes"><span class="ico">📝</span>创作笔记</div>
   <div class="nav-item" data-mod="mood" data-page-node-id="G6aHL26rOFp78wRcCj5vUC"><span class="ico" data-page-node-id="XQVjV3QuHYRq5SfIMol0EU">😊</span>心情记录</div>
   <div class="nav-item" data-mod="english" data-page-node-id="m4BpPBybyR88jD1xGMocdh"><span class="ico" data-page-node-id="pNhHMrJ4DCjQdASgPPhBUq">🔤</span>英语</div>
   <div class="nav-item" data-mod="dev" data-page-node-id="tFavP4HAqVsKU1ZXE2cQPD"><span class="ico" data-page-node-id="cvVDt32iyZfnC6yzvO689X">🎨</span>开发者</div>
@@ -889,6 +919,26 @@ a.link{color:var(--c-blue);cursor:pointer;font-weight:600;}
     </div>
   </section>
 
+  <!-- 创作笔记 -->
+  <section class="module" id="mod-notes">
+    <div class="module-head"><h2>📝 创作笔记</h2><p>草稿、知识记录、记事与总结，一站管理。</p></div>
+    <div class="card">
+      <input class="note-search" id="noteSearch" placeholder="🔍 搜索标题、标签或内容...">
+      <div class="note-tabs" id="noteTabs">
+        <button class="note-tab active" data-filter="all">全部</button>
+        <button class="note-tab" data-filter="draft">📝 草稿</button>
+        <button class="note-tab" data-filter="knowledge">💡 知识</button>
+        <button class="note-tab" data-filter="note">📌 记事</button>
+        <button class="note-tab" data-filter="summary">📖 总结</button>
+      </div>
+      <div class="flex-between" style="margin-bottom:12px">
+        <div class="muted" id="noteCount">0 条笔记</div>
+        <button class="btn purple sm" id="noteAddBtn">＋ 新建笔记</button>
+      </div>
+      <div id="noteList"></div>
+    </div>
+  </section>
+
 </main>
 
 <!-- 移动端底部导航 -->
@@ -899,6 +949,7 @@ a.link{color:var(--c-blue);cursor:pointer;font-weight:600;}
   <div class="bn-item" data-mod="exercise"><span class="i">🏃</span>运动</div>
   <div class="bn-item" data-mod="finance"><span class="i">💰</span>记账</div>
   <div class="bn-item" data-mod="books"><span class="i">📚</span>读书</div>
+  <div class="bn-item" data-mod="notes"><span class="i">📝</span>笔记</div>
   <div class="bn-item" data-mod="mood"><span class="i">😊</span>心情</div>
   <div class="bn-item" data-mod="english"><span class="i">🔤</span>英语</div>
   <div class="bn-item" data-mod="badges"><span class="i">🏅</span>勋章</div>
@@ -977,6 +1028,31 @@ a.link{color:var(--c-blue);cursor:pointer;font-weight:600;}
   </div>
 </div>
 
+<!-- 笔记编辑器 -->
+<div class="modal-mask" id="noteModal">
+  <div class="modal" style="max-width:620px">
+    <div class="mh"><h3 id="noteModalTitle">📝 新建笔记</h3><button class="x" id="noteClose">✕</button></div>
+    <div class="mb">
+      <input type="hidden" id="noteId">
+      <div class="note-editor-row">
+        <div class="field" style="flex:2;min-width:200px"><label>标题</label><input id="noteTitle" placeholder="例如：小红书健身文案"></div>
+        <div class="field"><label>分类</label><select id="noteType"><option value="draft">草稿</option><option value="knowledge">知识</option><option value="note">记事</option><option value="summary">总结</option></select></div>
+      </div>
+      <div class="note-editor-row" id="noteStatusRow">
+        <div class="field"><label>状态</label><select id="noteStatus"><option value="draft">草稿中</option><option value="ready">可发布</option><option value="published">已发布</option></select></div>
+        <div class="field" id="noteSourceField" style="display:none;flex:2"><label>来源链接</label><input id="noteSource" placeholder="https://..."></div>
+      </div>
+      <div class="field" style="margin-bottom:12px"><label>标签（用空格或逗号分隔）</label><input id="noteTags" placeholder="健身, 文案, 小红书"></div>
+      <div class="field"><label>内容</label><textarea id="noteContent" placeholder="写点什么..."></textarea></div>
+      <div class="gap10 mt14">
+        <button class="btn purple" id="noteSaveBtn">保存</button>
+        <button class="btn ghost" id="noteCancelBtn">取消</button>
+        <button class="btn danger" id="noteDeleteBtn" style="margin-left:auto;display:none">删除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" data-page-node-id="3ZkEPolG567Vcuax5Um90y"></div>
 
 <script>
@@ -1005,6 +1081,7 @@ const DEFAULT_STATE = {
     {id:'h_read', name:'阅读 30 分钟', icon:'📖', days:{}},
     {id:'h_no_late', name:'不吃宵夜', icon:'🚫', days:{}}
   ],
+  notes:{items:[]},
   weeklyReportSeen:''
 };
 function deepMerge(base, over){
@@ -1162,6 +1239,7 @@ function switchMod(mod){
   if(mod==='mood'){ renderMoodChart(); renderMoodLine30(); }
   if(mod==='english') renderEnChart();
   if(mod==='badges') renderBadges();
+  if(mod==='notes') renderNotes();
   if(mod==='diet'||mod==='exercise'||mod==='english') setTimeout(()=>window.dispatchEvent(new Event('resize')),50);
 }
 document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',()=>{ switchMod(n.dataset.mod); closeDrawer(); }));
@@ -1225,6 +1303,7 @@ function renderHome(){
     {mod:'finance',ico:'💰',name:'记账存钱',v:`结余 ¥${fmt(bal)}`},
     {mod:'books',ico:'📚',name:'读书收获',v:`在读 ${state.books.items.length} 本`},
     {mod:'mood',ico:'😊',name:'心情记录',v:todayMood?MOODS.find(x=>x.e===todayMood.emoji)?.n:'未记录'},
+    {mod:'notes',ico:'📝',name:'创作笔记',v:`${(state.notes&&state.notes.items)?state.notes.items.length:0} 条`},
     {mod:'english',ico:'🔤',name:'英语',v:`累计 ${state.english.words.length} 词`},
     {mod:'badges',ico:'🏅',name:'我的勋章',v:`${BADGE_TIERS.filter(b=>(state.checkin.best||0)>=b.day).length}/${BADGE_TIERS.length} 点亮`},
     {mod:'dev',ico:'🎨',name:'开发者',v:'主题配色'}
@@ -1906,6 +1985,24 @@ $('weeklyReportCopy').addEventListener('click',()=>{
 });
 $('weeklyReportModal').addEventListener('click',e=>{ if(e.target===$('weeklyReportModal')) $('weeklyReportModal').classList.remove('show'); });
 
+/* ============ 创作笔记事件 ============ */
+$('noteAddBtn') && $('noteAddBtn').addEventListener('click',()=>openNoteEditor());
+$('noteClose') && $('noteClose').addEventListener('click',closeNoteEditor);
+$('noteCancelBtn') && $('noteCancelBtn').addEventListener('click',closeNoteEditor);
+$('noteSaveBtn') && $('noteSaveBtn').addEventListener('click',saveNote);
+$('noteDeleteBtn') && $('noteDeleteBtn').addEventListener('click',()=>{ const id=$('noteId').value; if(id) deleteNote(id); });
+$('noteType') && $('noteType').addEventListener('change',toggleNoteTypeUI);
+$('noteSearch') && $('noteSearch').addEventListener('input',renderNotes);
+$('noteTabs') && $('noteTabs').addEventListener('click',e=>{
+  if(e.target.classList.contains('note-tab')){
+    document.querySelectorAll('#noteTabs .note-tab').forEach(b=>b.classList.remove('active'));
+    e.target.classList.add('active');
+    noteFilter=e.target.dataset.filter;
+    renderNotes();
+  }
+});
+$('noteModal') && $('noteModal').addEventListener('click',e=>{ if(e.target===$('noteModal')) closeNoteEditor(); });
+
 /* ============ 开发者：配色 ============ */
 const COLOR_DEFS=[
   {k:'--c-purple',n:'品牌紫'},
@@ -2136,12 +2233,145 @@ $('cbSend') && $('cbSend').addEventListener('click', cbSendCode);
 $('cbLoginBtn') && $('cbLoginBtn').addEventListener('click', cbLogin);
 $('cbLogoutBtn') && $('cbLogoutBtn').addEventListener('click', cbLogout);
 
+/* ============ 创作笔记模块 ============ */
+const NOTE_TYPES = [
+  {k:'draft',label:'草稿',icon:'📝'},
+  {k:'knowledge',label:'知识',icon:'💡'},
+  {k:'note',label:'记事',icon:'📌'},
+  {k:'summary',label:'总结',icon:'📖'}
+];
+const NOTE_STATUS = {draft:'草稿中',ready:'可发布',published:'已发布'};
+function noteTypeLabel(k){ return NOTE_TYPES.find(t=>t.k===k) || {label:k,icon:''}; }
+function noteTypeColor(k){ return {draft:'#1565c0',knowledge:'#6a1b9a',note:'#2e7d32',summary:'#ef6c00'}[k]||'#666'; }
+let noteFilter='all';
+function fmtNoteDate(iso){
+  if(!iso) return '';
+  const d=new Date(iso);
+  if(isNaN(d)) return '';
+  const now=new Date();
+  const diff=Math.floor((now-d)/(1000*60*60*24));
+  if(diff===0) return '今天 '+d.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+  if(diff===1) return '昨天';
+  if(diff<7) return diff+'天前';
+  return d.toLocaleDateString('zh-CN',{month:'short',day:'numeric'});
+}
+function renderNotes(){
+  const list=$('noteList');
+  if(!list) return;
+  const items=(state.notes?.items||[]).slice().sort((a,b)=>{
+    if(a.pinned!==b.pinned) return a.pinned?-1:1;
+    return new Date(b.updated||b.created||0)-new Date(a.updated||a.created||0);
+  });
+  const term=($('noteSearch')?.value||'').trim().toLowerCase();
+  const filtered=items.filter(n=>{
+    if(noteFilter!=='all' && n.type!==noteFilter) return false;
+    if(!term) return true;
+    const hay=(n.title+' '+(n.content||'')+' '+(n.tags||[]).join(' ')).toLowerCase();
+    return hay.includes(term);
+  });
+  $('noteCount').textContent = `${filtered.length} 条笔记`;
+  if(!filtered.length){
+    list.innerHTML=`<div class="note-empty"><span class="i">📝</span>还没有笔记<br><small>点击右上角「新建笔记」开始记录</small></div>`;
+    return;
+  }
+  list.innerHTML=filtered.map(n=>{
+    const t=noteTypeLabel(n.type);
+    const dateStr=fmtNoteDate(n.updated||n.created);
+    const tags=(n.tags||[]).map(tag=>`<span class="note-badge">${esc(tag)}</span>`).join('');
+    const statusBadge=n.type==='draft' && n.status ? `<span class="note-badge status-${n.status}">${NOTE_STATUS[n.status]}</span>` : '';
+    let source='';
+    if(n.type==='knowledge' && n.source){
+      const safe=/^https?:\/\//i.test(n.source)?n.source:'https://'+(n.source||'');
+      source=` · <a href="${esc(safe)}" target="_blank" rel="noopener" style="color:var(--c-purple)">来源 ↗</a>`;
+    }
+    return `<div class="note-card ${n.pinned?'pinned':''}">
+      <div class="note-head">
+        <div class="note-title">${esc(n.title||'未命名')}</div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <span class="note-badge ${n.type}">${t.icon} ${t.label}</span>
+          ${statusBadge}
+        </div>
+      </div>
+      <div class="note-meta">${n.pinned?'📌 置顶 · ':''}${dateStr}${source}</div>
+      ${tags?`<div class="note-meta" style="margin-bottom:6px">${tags}</div>`:''}
+      <div class="note-snippet">${esc(n.content||'')}</div>
+      <div class="note-actions">
+        <button onclick="openNoteEditor('${n.id}')">✏️ 编辑</button>
+        <button onclick="copyNoteContent('${n.id}')">📋 复制</button>
+        <button onclick="togglePinNote('${n.id}')">${n.pinned?'取消置顶':'置顶'}</button>
+        <button onclick="deleteNote('${n.id}')" style="color:#ff3b30">🗑️ 删除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openNoteEditor(id){
+  const isEdit=!!id;
+  const n=isEdit ? (state.notes?.items||[]).find(x=>x.id===id) : null;
+  $('noteId').value=isEdit?id:'';
+  $('noteModalTitle').textContent=isEdit?'✏️ 编辑笔记':'📝 新建笔记';
+  $('noteTitle').value=n?.title||'';
+  $('noteType').value=n?.type||'note';
+  $('noteStatus').value=n?.status||'draft';
+  $('noteSource').value=n?.source||'';
+  $('noteTags').value=(n?.tags||[]).join(', ');
+  $('noteContent').value=n?.content||'';
+  $('noteDeleteBtn').style.display=isEdit?'block':'none';
+  toggleNoteTypeUI();
+  $('noteModal').classList.add('show');
+}
+function closeNoteEditor(){ $('noteModal').classList.remove('show'); }
+function toggleNoteTypeUI(){
+  const type=$('noteType').value;
+  $('noteStatusRow').style.display=type==='draft'?'flex':'none';
+  $('noteSourceField').style.display=type==='knowledge'?'block':'none';
+}
+function saveNote(){
+  const id=$('noteId').value;
+  const title=$('noteTitle').value.trim();
+  const content=$('noteContent').value.trim();
+  if(!title && !content){ toast('标题和内容至少填一项'); return; }
+  const type=$('noteType').value;
+  const tags=$('noteTags').value.split(/[,，\s]+/).map(s=>s.trim()).filter(Boolean);
+  const now=new Date().toISOString();
+  const payload={ id:id||'n_'+Date.now(), title:title||'未命名笔记', content, type, tags, pinned:false, created:now, updated:now };
+  if(id){
+    const ex=(state.notes?.items||[]).find(x=>x.id===id);
+    payload.pinned=ex?.pinned||false;
+    payload.created=ex?.created||now;
+    if(!state.notes) state.notes={items:[]};
+    const idx=state.notes.items.findIndex(x=>x.id===id);
+    if(idx>-1) state.notes.items[idx]={...state.notes.items[idx],...payload};
+  }else{
+    if(!state.notes) state.notes={items:[]};
+    state.notes.items.push(payload);
+  }
+  if(type==='draft') payload.status=$('noteStatus').value||'draft';
+  if(type==='knowledge') payload.source=$('noteSource').value.trim();
+  save(); renderNotes(); closeNoteEditor(); toast(id?'已更新':'已保存');
+}
+function deleteNote(id){
+  if(!confirm('确定删除这条笔记？')) return;
+  state.notes.items=state.notes.items.filter(x=>x.id!==id);
+  save(); renderNotes(); toast('已删除');
+}
+function togglePinNote(id){
+  const n=(state.notes?.items||[]).find(x=>x.id===id);
+  if(n){ n.pinned=!n.pinned; n.updated=new Date().toISOString(); save(); renderNotes(); }
+}
+function copyNoteContent(id){
+  const n=(state.notes?.items||[]).find(x=>x.id===id);
+  if(!n) return;
+  const text=`${n.title}\n\n${n.content}`;
+  navigator.clipboard.writeText(text).then(()=>toast('已复制到剪贴板')).catch(()=>toast('复制失败'));
+}
+
 /* ============ 初始化 ============ */
 function renderAll(){
   renderHome(); renderPlan(); renderDietProfile(); renderDiet(); renderEx(); renderFinCats(); renderFin(); renderBooks();
   renderMoodPick(); renderMood(); renderEnglish(); renderColorGrid(); renderPresetGrid();
   applyColors(); applyTheme(); initSyncInputs();
   $('enGoal').value=state.english.goal;
+  renderNotes();
   showWeeklyReportIfNeeded(); // 每周一首次打开时弹 AI 周报
 }
 
